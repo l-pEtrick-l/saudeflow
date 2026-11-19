@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import { PhoneCall, Siren, Ambulance, ArrowRight, Info } from "lucide-react";
 import { Alert, Card } from "../../components/ui";
+import { useAuth } from "../../lib/auth";
+import { demoLogin } from "../../lib/demo";
 
 export default function EmergencyPage() {
+  const { user } = useAuth();
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
       <div className="rounded-3xl bg-gradient-to-br from-red-600 to-red-700 p-8 text-white shadow-soft">
@@ -54,6 +57,15 @@ export default function EmergencyPage() {
           <Link to="/paciente/pre-alerta" className="btn-primary mt-4 w-full">
             Enviar pré-alerta <ArrowRight className="h-4 w-4" />
           </Link>
+          {!user && (
+            <button
+              type="button"
+              onClick={() => demoLogin("patient", "/paciente/pre-alerta")}
+              className="mt-2 w-full rounded-xl border-2 border-dashed border-mint-300 bg-mint-50 px-4 py-3 text-sm font-bold text-mint-700 transition hover:bg-mint-100"
+            >
+              Entrar como usuário teste (sem cadastro)
+            </button>
+          )}
         </Card>
       </div>
 

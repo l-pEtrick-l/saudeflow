@@ -72,6 +72,21 @@ export default function LoginPage() {
           <Button type="submit" loading={isSubmitting} className="w-full">
             <LogIn className="h-4 w-4" /> Entrar
           </Button>
+          <button
+            type="button"
+            disabled={quickLoading !== null}
+            onClick={async () => {
+              setQuickLoading("patient");
+              try {
+                await demoLogin("patient", "/paciente/pre-alerta");
+              } catch {
+                setQuickLoading(null);
+              }
+            }}
+            className="mt-2 w-full rounded-xl border-2 border-dashed border-mint-300 bg-mint-50 px-4 py-3.5 text-sm font-bold text-mint-700 transition hover:bg-mint-100 disabled:opacity-50"
+          >
+            {quickLoading === "patient" ? "Entrando..." : "Entrar como usuário teste (sem cadastro)"}
+          </button>
         </form>
         <div className="mt-5 border-t border-slate-100 pt-4">
           <p className="text-xs font-semibold text-slate-500">

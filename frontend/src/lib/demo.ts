@@ -35,7 +35,7 @@ export const DEMO_ACCOUNTS: Record<
   },
 };
 
-export async function demoLogin(role: DemoRole): Promise<void> {
+export async function demoLogin(role: DemoRole, redirectTo?: string): Promise<void> {
   const account = DEMO_ACCOUNTS[role];
   const response = await fetch("/api/v1/auth/login", {
     method: "POST",
@@ -48,5 +48,5 @@ export async function demoLogin(role: DemoRole): Promise<void> {
   }
   localStorage.setItem("sf_token", data.access_token);
   localStorage.setItem("sf_user", JSON.stringify(data.user));
-  window.location.href = account.home;
+  window.location.href = redirectTo || account.home;
 }
