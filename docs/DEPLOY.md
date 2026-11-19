@@ -1,5 +1,14 @@
 # Deploy na web (Render)
 
+## Deploy real (executado em 19/11/2026)
+
+- **URL:** https://saudeflow-fiap.onrender.com
+- **Repositório:** https://github.com/l-pEtrick-l/saudeflow (público)
+- **Web service:** `srv-dbvil22vcj2c73d2d6gg` (Python, plan free, região ohio)
+- **PostgreSQL:** `dpg-dbvijrqfngtc73cd3oqg-a` (plan free; expira em 30 dias)
+- **Python:** fixado em 3.11 via `.python-version` (o default 3.14 não tem wheels dos pins)
+- **Env:** `DATABASE_URL` (interna do banco), `SECRET_KEY` (gerada), `CORS_ORIGINS=*`, `SYNC_ENABLED=false`, `DEMO_MODE=true`
+
 ## Arquitetura de deploy
 
 - **Web service (Python)**: FastAPI servindo a API em `/api/v1` e o frontend construído em `frontend/dist` (SPA).

@@ -122,6 +122,10 @@ Conteúdo: fluxo do paciente (questionário → orientação → unidade → pro
 
 ## Publicar na web (Render)
 
+**Está no ar:** https://saudeflow-fiap.onrender.com
+
+> Serviço free: hiberna após inatividade (a 1ª requisição pode demorar ~30–60 s). O PostgreSQL free expira em 30 dias.
+
 O projeto está pronto para deploy no Render (plano grátis, sem cartão):
 
 - Web service: `python` (roda FastAPI servindo o frontend em `frontend/dist`).
