@@ -106,6 +106,12 @@ SaudeFlow/
 └── docker-compose.yml
 ```
 
+## Demo offline (para enviar a alguém)
+
+Pasta `demo-estatica/` (ou o `demo-estatica.zip` pronto): versão que **abre com 2 cliques no `index.html`**, sem backend, sem internet e sem cadastro. Ideal para mandar no WhatsApp e a pessoa descompactar e abrir.
+
+Conteúdo: fluxo do paciente (questionário → orientação → unidade → protocolo → acompanhamento), pré-alerta, portal da UPA, visão do hospital, admin e tela de emergência — com dados simulados no navegador.
+
 ## Documentação
 
 - [Arquitetura e diagramas](docs/ARCHITECTURE.md)

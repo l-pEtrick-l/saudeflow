@@ -1,0 +1,25 @@
+SaúdeFlow — DEMONSTRAÇÃO OFFLINE
+================================
+
+1. Descompacte a pasta em qualquer lugar.
+2. Dê 2 cliques no arquivo index.html (abre no navegador).
+3. Pronto! Não precisa de internet, nem de servidor, nem de cadastro.
+
+O que é isso?
+-------------
+É uma versão de demonstração do SaúdeFlow que funciona inteiramente no
+navegador, com dados fictícios. Dá para ver o fluxo do paciente
+(questionário -> orientação -> unidade -> protocolo -> acompanhamento),
+o pré-alerta de emergência, o portal da UPA, do hospital e o admin.
+
+Acesso rápido: use os botões do topo (Paciente, UPA, Visão Hospital, Admin)
+ou, na tela de login, "Entrar como usuário teste".
+
+Importante
+----------
+- É uma demonstração acadêmica. NÃO substitui atendimento médico, SAMU 192,
+  regulação médica ou sistemas oficiais.
+- Os dados de filas, esperas e pré-alertas são SIMULADOS no navegador.
+- Em emergência real, ligue 192.
+
+Projeto completo (com backend e integrações reais): pasta principal.
