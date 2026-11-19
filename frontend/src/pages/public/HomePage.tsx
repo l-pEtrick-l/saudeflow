@@ -1,0 +1,104 @@
+import { Link } from "react-router-dom";
+import {
+  ArrowRight,
+  Building2,
+  ClipboardList,
+  HeartPulse,
+  MapPin,
+  ShieldAlert,
+  Siren,
+  Sparkles,
+} from "lucide-react";
+import { Card } from "../../components/ui";
+
+const features = [
+  {
+    icon: <HeartPulse className="h-6 w-6" />,
+    title: "Orientação inteligente",
+    text: "Responda a um questionário curto e adaptativo. O sistema indica o tipo de serviço potencialmente adequado — sem diagnosticar.",
+  },
+  {
+    icon: <Building2 className="h-6 w-6" />,
+    title: "Unidades compatíveis",
+    text: "Compare UPAs, hospitais e UBS por serviços, distância aproximada e estimativa de espera operacional.",
+  },
+  {
+    icon: <ClipboardList className="h-6 w-6" />,
+    title: "Pré-cadastro e protocolo",
+    text: "Gere um protocolo único e acompanhe o andamento em tempo real, sem recarregar a página.",
+  },
+  {
+    icon: <ShieldAlert className="h-6 w-6" />,
+    title: "Pré-alerta de emergência",
+    text: "Avise a unidade que você está a caminho, compartilhando informações preliminares — sem substituir o SAMU 192.",
+  },
+];
+
+export default function HomePage() {
+  return (
+    <div>
+      <section className="bg-gradient-to-br from-brand-700 via-brand-600 to-mint-600 text-white">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+          <span className="badge bg-white/15 text-white">
+            <Sparkles className="h-3.5 w-3.5" /> Demonstração acadêmica — Global Solution FIAP
+          </span>
+          <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-tight sm:text-5xl">
+            Orientação inteligente para o atendimento de saúde
+          </h1>
+          <p className="mt-4 max-w-2xl text-lg text-white/85">
+            O SaúdeFlow conecta a necessidade relatada pelo paciente a questionário inteligente,
+            orientação de acesso, unidade compatível, pré-cadastro e acompanhamento em tempo real.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to="/atendimento" className="btn bg-white text-brand-700 hover:bg-brand-50 px-6 py-3.5 text-base">
+              Preciso de atendimento <ArrowRight className="h-5 w-5" />
+            </Link>
+            <Link to="/unidades" className="btn bg-white/10 text-white border border-white/30 hover:bg-white/20 px-6 py-3.5 text-base">
+              <MapPin className="h-5 w-5" /> Ver unidades próximas
+            </Link>
+            <Link to="/emergencia" className="btn bg-red-500 text-white hover:bg-red-600 px-6 py-3.5 text-base">
+              <Siren className="h-5 w-5" /> Emergência
+            </Link>
+          </div>
+          <div className="mt-8 flex flex-wrap gap-4 text-sm text-white/80">
+            <Link to="/acompanhar" className="underline decoration-white/40 hover:decoration-white">
+              Acompanhar minha solicitação
+            </Link>
+            <Link to="/login" className="underline decoration-white/40 hover:decoration-white">
+              Entrar na minha conta
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 py-14">
+        <h2 className="text-2xl font-bold text-slate-900">Como funciona</h2>
+        <p className="mt-2 text-slate-600">
+          Um fluxo guiado, com linguagem acessível e botões grandes — pensado para celular.
+        </p>
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {features.map((feature) => (
+            <Card key={feature.title}>
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                {feature.icon}
+              </span>
+              <h3 className="mt-4 font-semibold text-slate-900">{feature.title}</h3>
+              <p className="mt-2 text-sm text-slate-600">{feature.text}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-amber-50 border-y border-amber-100">
+        <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-amber-900">
+          <p className="font-semibold">Aviso importante</p>
+          <p className="mt-1">
+            O SaúdeFlow não substitui médicos, classificação de risco presencial, regulação médica ou
+            o SAMU 192. As orientações são auxiliares, conservadoras e demonstrativas. Em emergência,
+            ligue 192.
+          </p>
+        </div>
+      </section>
+    </div>
+  );
+}

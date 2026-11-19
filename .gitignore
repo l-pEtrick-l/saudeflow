@@ -1,0 +1,40 @@
+# Dependências
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Banco local / segredos
+*.db
+*.sqlite
+*.sqlite3
+.env
+.env.local
+*.pem
+*.key
+
+# Frontend
+node_modules/
+dist/
+.vite/
+*.local
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build / logs
+*.log
+temp/
+
+# Build artifacts
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
