@@ -112,6 +112,14 @@ Pasta `demo-estatica/` (ou o `demo-estatica.zip` pronto): versão que **abre com
 
 Conteúdo: fluxo do paciente (questionário → orientação → unidade → protocolo → acompanhamento), pré-alerta, portal da UPA, visão do hospital, admin e tela de emergência — com dados simulados no navegador.
 
+## Projeto completo (1 clique, para enviar a alguém)
+
+`SaudeFlow-completo.zip` (~470 KB): a pessoa **descompacta e dá 2 cliques em `ABRIR-PROJETO.bat`**. O script baixa Python/dependências na primeira vez (internet), roda as migrations, semeia os dados e abre **http://localhost:8000** com o sistema inteiro (backend + frontend + banco + tempo real). **Sem Docker, sem Node, sem instalar nada manualmente.**
+
+- Windows: `ABRIR-PROJETO.bat` (veja `INICIAR.txt`).
+- macOS/Linux: `bash start-standalone.sh`.
+- Contas e detalhes estão no `INICIAR.txt` e no `README.md`.
+
 ## Documentação
 
 - [Arquitetura e diagramas](docs/ARCHITECTURE.md)

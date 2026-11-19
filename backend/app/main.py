@@ -1,9 +1,12 @@
 import asyncio
 import threading
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.v1 import alerts as alerts_router
 from app.api.v1 import analytics as analytics_router
@@ -100,3 +103,24 @@ for module in (
 
 app.include_router(health_router.router)
 app.include_router(health_router.router, prefix=API_PREFIX)
+
+# ---- Modo standalone: serve o frontend construído (frontend/dist) ----
+_DIST = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+if _DIST.exists():
+    _assets = _DIST / "assets"
+    if _assets.exists():
+        app.mount("/assets", StaticFiles(directory=str(_assets)), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def spa_fallback(full_path: str):
+        # não intercepta a API nem as rotas de documentação
+        if full_path.startswith("api/") or full_path in {"docs", "redoc", "openapi.json"}:
+            raise HTTPException(status_code=404, detail="Not Found")
+        candidate = (_DIST / full_path).resolve()
+        try:
+            candidate.relative_to(_DIST.resolve())
+        except ValueError:
+            return FileResponse(_DIST / "index.html")
+        if candidate.is_file():
+            return FileResponse(candidate)
+        return FileResponse(_DIST / "index.html")

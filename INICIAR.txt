@@ -1,0 +1,38 @@
+SaúdeFlow — PROJETO COMPLETO (modo 1 clique)
+============================================
+
+COMO ABRIR
+----------
+1. Descompacte ESTA pasta inteira em algum lugar (ex.: Área de Trabalho).
+2. Dê 2 cliques em **ABRIR-PROJETO.bat**.
+3. Na primeira vez, o script baixa o Python/uv e as dependências
+   (precisa de internet; leva de 1 a 3 minutos). Depois disso, só abre.
+4. O sistema abre sozinho em **http://localhost:8000** — com banco de
+   dados, backend, tempo real e o frontend completo.
+
+É só deixar a janela preta aberta enquanto usa. Feche-a para parar.
+
+Contas de demonstração
+---------------------
+Paciente   paciente@saudeflow.com.br / Paciente@123
+UPA        recepcao.upa@saudeflow.com.br / Upa@123
+Hospital   hospital@saudeflow.com.br / Hosp@123
+Admin      admin@saudeflow.com.br / Admin@123
+
+No topo do site há “Acesso rápido (demonstração)”: um clique já entra
+em cada portal. Na tela de login há “Entrar como usuário teste”.
+
+Requisitos
+----------
+- Windows 10/11.
+- Internet na primeira execução (para baixar Python e dependências).
+- Não precisa instalar Python, Node ou Docker manualmente.
+
+Alternativa (macOS/Linux)
+-------------------------
+Abra um terminal nesta pasta e rode:  bash start-standalone.sh
+
+Observação
+----------
+Dados de filas, esperas e pré-alertas são simulados. A demonstração não
+substitui atendimento médico, SAMU 192, regulação ou sistemas oficiais.
