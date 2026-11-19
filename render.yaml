@@ -1,0 +1,28 @@
+# Render Blueprint — deploy do SaúdeFlow (web + PostgreSQL)
+services:
+  - type: web
+    name: saudeflow
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && alembic upgrade head && python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: saudeflow-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SYNC_ENABLED
+        value: "false"
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: DEMO_MODE
+        value: "true"
+
+databases:
+  - name: saudeflow-db
+    plan: free
+    databaseName: saudeflow
+    user: saude

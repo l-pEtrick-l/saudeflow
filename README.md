@@ -120,6 +120,17 @@ Conteúdo: fluxo do paciente (questionário → orientação → unidade → pro
 - macOS/Linux: `bash start-standalone.sh`.
 - Contas e detalhes estão no `INICIAR.txt` e no `README.md`.
 
+## Publicar na web (Render)
+
+O projeto está pronto para deploy no Render (plano grátis, sem cartão):
+
+- Web service: `python` (roda FastAPI servindo o frontend em `frontend/dist`).
+- PostgreSQL grátis (expira em 30 dias; suficiente para a banca).
+- `render.yaml` (Blueprint) na raiz; `requirements.txt` na raiz para o build.
+- Comando de início: migrations + seed + `uvicorn ... --port $PORT`.
+
+Fluxo usado: repositório público no GitHub + criação via API do Render. Veja `docs/DEPLOY.md`.
+
 ## Documentação
 
 - [Arquitetura e diagramas](docs/ARCHITECTURE.md)
