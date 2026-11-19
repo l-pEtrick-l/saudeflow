@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { HeartPulse, LogIn } from "lucide-react";
+import { HeartPulse, Loader2, LogIn } from "lucide-react";
 import { useAuth } from "../../lib/auth";
 import { Button, Card, FieldError, Input, Label } from "../../components/ui";
+import { DEMO_ACCOUNTS, demoLogin, type DemoRole } from "../../lib/demo";
 
 interface LoginForm {
   email: string;
@@ -19,6 +21,7 @@ export function homeForRoles(roles: string[]) {
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const [quickLoading, setQuickLoading] = useState<DemoRole | null>(null);
   const navigate = useNavigate();
   const location = useLocation() as { state?: { from?: string } };
   const {
@@ -70,6 +73,34 @@ export default function LoginPage() {
             <LogIn className="h-4 w-4" /> Entrar
           </Button>
         </form>
+        <div className="mt-5 border-t border-slate-100 pt-4">
+          <p className="text-xs font-semibold text-slate-500">
+            Entrar rápido (demonstração, sem cadastro)
+          </p>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {(Object.keys(DEMO_ACCOUNTS) as DemoRole[]).map((role) => (
+              <button
+                key={role}
+                type="button"
+                disabled={quickLoading !== null}
+                onClick={async () => {
+                  setQuickLoading(role);
+                  try {
+                    await demoLogin(role);
+                  } catch {
+                    setQuickLoading(null);
+                  }
+                }}
+                className="btn-secondary justify-center text-xs disabled:opacity-50"
+              >
+                {quickLoading === role ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : null}
+                {DEMO_ACCOUNTS[role].label}
+              </button>
+            ))}
+          </div>
+        </div>
         <p className="mt-4 text-center text-sm text-slate-500">
           Não tem conta?{" "}
           <Link to="/cadastro" className="font-semibold text-brand-600 hover:underline">

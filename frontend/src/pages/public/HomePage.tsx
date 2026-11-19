@@ -1,15 +1,48 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
   Building2,
   ClipboardList,
   HeartPulse,
+  Hospital,
+  Loader2,
   MapPin,
+  Shield,
   ShieldAlert,
   Siren,
   Sparkles,
+  UserRound,
 } from "lucide-react";
 import { Card } from "../../components/ui";
+import { DEMO_ACCOUNTS, demoLogin, type DemoRole } from "../../lib/demo";
+
+const quickAccess: { role: DemoRole; icon: React.ReactNode; title: string; text: string }[] = [
+  {
+    role: "patient",
+    icon: <UserRound className="h-6 w-6" />,
+    title: "Visão Paciente",
+    text: "Questionário, orientação, protocolo e acompanhamento em tempo real.",
+  },
+  {
+    role: "upa",
+    icon: <Building2 className="h-6 w-6" />,
+    title: "Visão UPA",
+    text: "Dashboard operacional, fila digital, solicitações, alertas e capacidade.",
+  },
+  {
+    role: "hospital",
+    icon: <Hospital className="h-6 w-6" />,
+    title: "Visão Hospital",
+    text: "Recebimento de pré-alertas, confirmações, histórico e indicadores.",
+  },
+  {
+    role: "admin",
+    icon: <Shield className="h-6 w-6" />,
+    title: "Visão Admin",
+    text: "Unidades, usuários e papéis, integrações externas e auditoria.",
+  },
+];
 
 const features = [
   {
@@ -35,6 +68,17 @@ const features = [
 ];
 
 export default function HomePage() {
+  const [loading, setLoading] = useState<DemoRole | null>(null);
+
+  async function quickLogin(role: DemoRole) {
+    setLoading(role);
+    try {
+      await demoLogin(role);
+    } catch {
+      setLoading(null);
+    }
+  }
+
   return (
     <div>
       <section className="bg-gradient-to-br from-brand-700 via-brand-600 to-mint-600 text-white">
@@ -84,6 +128,36 @@ export default function HomePage() {
               </span>
               <h3 className="mt-4 font-semibold text-slate-900">{feature.title}</h3>
               <p className="mt-2 text-sm text-slate-600">{feature.text}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-14">
+        <h2 className="text-2xl font-bold text-slate-900">Acesso rápido de demonstração</h2>
+        <p className="mt-2 text-slate-600">
+          Entre com um clique em qualquer portal — sem precisar de cadastro.
+        </p>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {quickAccess.map(({ role, icon, title, text }) => (
+            <Card key={role} className="flex flex-col">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                {icon}
+              </span>
+              <h3 className="mt-4 font-semibold text-slate-900">{title}</h3>
+              <p className="mt-2 flex-1 text-sm text-slate-600">{text}</p>
+              <button
+                onClick={() => quickLogin(role)}
+                disabled={loading !== null}
+                className="btn-secondary mt-4 w-full disabled:opacity-50"
+              >
+                {loading === role ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <ArrowRight className="h-4 w-4" />
+                )}
+                Entrar como {DEMO_ACCOUNTS[role].label}
+              </button>
             </Card>
           ))}
         </div>

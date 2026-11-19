@@ -59,6 +59,8 @@ Windows (PowerShell): `scripts/start.ps1`. Linux/macOS: `scripts/start.sh`.
 
 ## Contas de demonstração
 
+> **Não precisa cadastrar nada para explorar.** No topo de qualquer página pública há a faixa **“Acesso rápido (demonstração)”** com os botões **Paciente**, **UPA**, **Visão Hospital** e **Admin** — um clique já entra no portal correspondente. A home também tem a seção “Acesso rápido de demonstração”.
+
 | Papel | E-mail | Senha |
 | --- | --- | --- |
 | Administrador | `admin@saudeflow.com.br` | `Admin@123` |
