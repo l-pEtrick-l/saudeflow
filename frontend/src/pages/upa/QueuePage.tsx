@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Activity, Megaphone, Users } from "lucide-react";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
-import { estimateText, formatDateTime } from "../../lib/format";
+import { QUEUE_STATUS, estimateText, formatDateTime } from "../../lib/format";
 import { Alert, Badge, Button, Card, EmptyState, Loading, PageHeader, StatCard, Table } from "../../components/ui";
 
 interface Ticket {
@@ -63,15 +63,15 @@ export default function UpaQueue() {
   return (
     <div>
       <PageHeader
-        title="Fila digital"
-        subtitle={`${data.unit_name} · ordem administrativa, não clínica`}
+        title="Fila online"
+        subtitle={`${data.unit_name} · ordem dos pedidos online`}
         actions={
           <Button onClick={() => callNext.mutate()} disabled={callNext.isPending || ready.length === 0}>
             <Megaphone className="h-4 w-4" /> Chamar próximo
           </Button>
         }
       />
-      <Alert className="mb-5" variant="info">A fila reúne pré-cadastros e chegadas planejadas. Confirme o recebimento e registre a chegada em Solicitações. Quem escolheu uma faixa só pode ser chamado após chegar. A classificação de risco continua presencial.</Alert>
+      <Alert className="mb-5" variant="info">Aqui aparecem os pedidos recebidos pelo site. Em “Pedidos de atendimento”, confirme o pedido e registre quando a pessoa chegar. Quem escolheu horário só pode ser chamado depois desse registro.</Alert>
       {callNext.error && <Alert variant="danger" className="mb-4">{callNext.error.message}</Alert>}
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -89,7 +89,7 @@ export default function UpaQueue() {
           <Activity className="h-5 w-5 text-brand-600" /> Posições
         </h2>
         {data.tickets.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-500">Nenhuma solicitação ativa na fila.</p>
+          <p className="mt-3 text-sm text-slate-500">Nenhum pedido ativa na fila.</p>
         ) : (
           <div className="mt-4">
             <Table>
@@ -98,8 +98,8 @@ export default function UpaQueue() {
                   <th className="px-4 py-3">Posição</th>
                   <th className="px-4 py-3">Protocolo</th>
                   <th className="px-4 py-3">Paciente</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Chegada planejada</th>
+                  <th className="px-4 py-3">Situação</th>
+                  <th className="px-4 py-3">Horário escolhido</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -110,10 +110,10 @@ export default function UpaQueue() {
                     <td className="px-4 py-3">{ticket.patient_name || "—"}</td>
                     <td className="px-4 py-3">
                       <Badge className={TICKET_TONE[ticket.status] ?? "bg-slate-100 text-slate-600"}>
-                        {({ waiting: "Aguardando", called: "Chamado", attending: "Em acolhimento", done: "Concluído", cancelled: "Cancelado", absent: "Ausente" } as Record<string, string>)[ticket.status] || ticket.status}
+                        {QUEUE_STATUS[ticket.status] || ticket.status}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-sm">{ticket.arrival_window_start ? <>{formatDateTime(ticket.arrival_window_start)} – {formatDateTime(ticket.arrival_window_end!)}<p className="text-xs text-slate-500">{ticket.request_status === "patient_arrived" ? "Presença registrada" : "A confirmar presencialmente"}</p></> : "Sem horário"}</td>
+                    <td className="px-4 py-3 text-sm">{ticket.arrival_window_start ? <>{formatDateTime(ticket.arrival_window_start)} – {formatDateTime(ticket.arrival_window_end!)}<p className="text-xs text-slate-500">{ticket.request_status === "patient_arrived" ? "Presença registrada" : "Ainda não chegou"}</p></> : "Sem horário"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -123,8 +123,7 @@ export default function UpaQueue() {
       </Card>
 
       <p className="mt-4 flex items-center gap-2 text-xs text-slate-400">
-        <Users className="h-3.5 w-3.5" /> A posição digital não representa prioridade clínica. A
-        classificação de risco é presencial.
+        <Users className="h-3.5 w-3.5" /> A posição mostra a ordem dos pedidos. A equipe avalia cada pessoa na unidade e define quem precisa de atendimento primeiro.
       </p>
     </div>
   );

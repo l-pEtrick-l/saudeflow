@@ -5,8 +5,8 @@ import { Bell, ClipboardList, User as UserIcon } from "lucide-react";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
 import type { Paginated, Request } from "../../lib/types";
-import { formatDateTime, REQUEST_STATUS } from "../../lib/format";
-import { Badge, Button, Card, EmptyState, Input, Label, PageHeader, Table } from "../../components/ui";
+import { formatDateTime, REQUEST_STATUS, ROLE_LABEL } from "../../lib/format";
+import { Badge, Button, Card, EmptyState, Input, Label, PageHeader, Select, Table } from "../../components/ui";
 
 interface NotificationItem {
   id: string;
@@ -42,7 +42,7 @@ export default function ProfilePage() {
         subtitle={user?.email}
         actions={
           <Link to="/atendimento" className="btn-primary">
-            Nova solicitação
+            Novo pedido
           </Link>
         }
       />
@@ -61,7 +61,7 @@ export default function ProfilePage() {
           <div className="mt-4 flex flex-wrap gap-2">
             {user?.roles.map((role) => (
               <Badge key={role} className="bg-brand-50 text-brand-700">
-                {role}
+                {ROLE_LABEL[role] ?? role}
               </Badge>
             ))}
           </div>
@@ -100,23 +100,23 @@ export default function ProfilePage() {
       <Card className="mt-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="flex items-center gap-2 font-semibold text-slate-900">
-            <ClipboardList className="h-5 w-5 text-brand-600" /> Minhas solicitações
+            <ClipboardList className="h-5 w-5 text-brand-600" /> Meus pedidos
           </h2>
           <div className="flex gap-2">
-            <Input
-              placeholder="Filtrar por status"
+            <Select
+              aria-label="Filtrar pedidos pela situação"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-48"
-            />
+              className="w-60"
+            ><option value="">Todas as situações</option>{Object.entries(REQUEST_STATUS).map(([value, item]) => <option key={value} value={value}>{item.label}</option>)}</Select>
           </div>
         </div>
 
         {items.length === 0 ? (
           <div className="mt-4">
             <EmptyState
-              title="Nenhuma solicitação"
-              description="Inicie pelo botão Nova solicitação."
+              title="Nenhum pedido"
+              description="Inicie pelo botão Novo pedido."
             />
           </div>
         ) : (
@@ -126,8 +126,8 @@ export default function ProfilePage() {
                 <tr>
                   <th className="px-4 py-3">Protocolo</th>
                   <th className="px-4 py-3">Unidade</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Criada em</th>
+                  <th className="px-4 py-3">Situação</th>
+                  <th className="px-4 py-3">Enviado em</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>

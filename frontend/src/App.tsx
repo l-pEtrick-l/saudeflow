@@ -6,6 +6,7 @@ import { useAuth } from "./lib/auth";
 import { Loading } from "./components/ui";
 
 const HomePage = lazy(() => import("./pages/public/HomePage"));
+const HelpPage = lazy(() => import("./pages/public/HelpPage"));
 const UnitsPage = lazy(() => import("./pages/public/UnitsPage"));
 const EmergencyPage = lazy(() => import("./pages/public/EmergencyPage"));
 const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
@@ -50,6 +51,7 @@ export default function App() {
     <Suspense fallback={<Loading label="Carregando página..." />}><Routes>
       <Route element={<PublicLayout />}>
         <Route index element={<HomePage />} />
+        <Route path="como-usar" element={<HelpPage />} />
         <Route path="unidades" element={<UnitsPage />} />
         <Route path="emergencia" element={<EmergencyPage />} />
         <Route path="login" element={<LoginPage />} />

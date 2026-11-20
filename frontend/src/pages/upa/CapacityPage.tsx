@@ -63,14 +63,14 @@ export default function UpaCapacity() {
   return (
     <div>
       <PageHeader
-        title="Capacidade operacional"
-        subtitle="Alterações afetam as estimativas exibidas ao paciente"
+        title="Equipe e estrutura"
+        subtitle="Informe a equipe e as salas disponíveis agora. Isso ajuda a atualizar a previsão de espera dos pacientes."
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <h2 className="flex items-center gap-2 font-semibold text-slate-900">
-            <Building2 className="h-5 w-5 text-brand-600" /> Nova capacidade
+            <Building2 className="h-5 w-5 text-brand-600" /> Como está a unidade agora?
           </h2>
           <form
             className="mt-4 space-y-4"
@@ -91,7 +91,7 @@ export default function UpaCapacity() {
                 <Input type="number" min={0} {...register("rooms_active", { required: true, min: 0 })} />
               </div>
               <div>
-                <Label>Acolhimento</Label>
+                <Label>Pessoas que podem ser recebidas</Label>
                 <Input
                   type="number"
                   min={0}
@@ -100,7 +100,7 @@ export default function UpaCapacity() {
               </div>
             </div>
             <div>
-              <Label>Situação excepcional</Label>
+              <Label>Algo mudou na unidade?</Label>
               <Input placeholder="Ex.: pico de demanda, greve, manutenção" {...register("exceptional_status")} />
             </div>
             <div>
@@ -113,16 +113,16 @@ export default function UpaCapacity() {
                 className="h-4 w-4 rounded border-slate-300 text-brand-600"
                 {...register("receiving_pre_registrations")}
               />
-              Recebendo pré-cadastros digitais
+              Permitir novos pedidos pelo site
             </label>
             <FieldError message={errors.root?.message} />
             <Button type="submit" loading={isSubmitting}>
-              <Save className="h-4 w-4" /> Salvar capacidade
+              <Save className="h-4 w-4" /> Salvar informações
             </Button>
           </form>
           {mutation.isSuccess && (
             <Alert variant="success" className="mt-4">
-              Capacidade atualizada. As estimativas foram recalculadas.
+              Informações salvas. A previsão de espera foi atualizada.
             </Alert>
           )}
         </Card>
@@ -137,9 +137,9 @@ export default function UpaCapacity() {
                 <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
                   <tr>
                     <th className="px-4 py-3">Data</th>
-                    <th className="px-4 py-3">Prof.</th>
+                    <th className="px-4 py-3">Profissionais</th>
                     <th className="px-4 py-3">Salas</th>
-                    <th className="px-4 py-3">Acolh.</th>
+                    <th className="px-4 py-3">Pessoas</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">

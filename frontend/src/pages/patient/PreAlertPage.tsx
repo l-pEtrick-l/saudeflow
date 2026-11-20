@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Ambulance, CheckCircle2, Loader2, PhoneCall, Siren } from "lucide-react";
+import { PatientNav } from "../../components/PatientNav";
+import { SIGNAL_LABEL } from "../../lib/format";
 import { api } from "../../lib/api";
 import type { Alert, Paginated, Unit } from "../../lib/types";
 import { Alert as AlertBox, Badge, Button, Card, Input, Label, Select, Textarea } from "../../components/ui";
@@ -48,13 +50,14 @@ export default function PreAlertPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
+      <PatientNav />
       <div className="rounded-2xl bg-gradient-to-br from-red-600 to-red-700 p-5 text-white">
         <div className="flex items-center gap-3">
           <Siren className="h-7 w-7" />
           <div>
-            <h1 className="text-xl font-bold">Pré-alerta de paciente a caminho</h1>
+            <h1 className="text-xl font-bold">Avisar que estou a caminho</h1>
             <p className="text-sm text-white/85">
-              Envie informações preliminares para a unidade. Não substitui o SAMU 192.
+              Conte ao hospital o que aconteceu e quando pretende chegar. Este aviso não chama ambulância nem entra na fila online.
             </p>
           </div>
         </div>
@@ -71,7 +74,7 @@ export default function PreAlertPage() {
           <div className="flex items-center gap-3">
             <CheckCircle2 className="h-8 w-8 text-mint-600" />
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Pré-alerta enviado</h2>
+              <h2 className="text-lg font-bold text-slate-900">Aviso enviado</h2>
               <p className="text-sm text-slate-500">
                 Código <strong>{created.alert_code}</strong> para {created.destination_unit_name}
               </p>
@@ -79,13 +82,13 @@ export default function PreAlertPage() {
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             {created.alert_flags.map((flag) => (
-              <Badge key={flag} className="bg-amber-50 text-amber-700">
-                {flag}
+              <Badge key={SIGNAL_LABEL[flag] ?? flag} className="bg-amber-50 text-amber-700">
+                {SIGNAL_LABEL[flag] ?? flag}
               </Badge>
             ))}
           </div>
           <p className="mt-4 text-sm text-slate-600">
-            Status: <strong>{created.status_label}</strong>. A unidade pode confirmar o recebimento.
+            Situação: <strong>{created.status_label}</strong>. A unidade pode confirmar o recebimento.
             Continue seguindo as orientações de emergência.
           </p>
           <div className="mt-5 flex gap-2">
@@ -105,7 +108,7 @@ export default function PreAlertPage() {
                 setEta("");
               }}
             >
-              Enviar outro pré-alerta
+              Enviar outro aviso
             </Button>
           </div>
         </Card>
@@ -135,7 +138,7 @@ export default function PreAlertPage() {
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               <div>
-                <Label>Consciente?</Label>
+                <Label>A pessoa está consciente?</Label>
                 <Select value={conscious} onChange={(e) => setConscious(e.target.value)}>
                   <option value="unknown">Não sei</option>
                   <option value="yes">Sim</option>
@@ -189,7 +192,7 @@ export default function PreAlertPage() {
               ) : (
                 <Ambulance className="h-4 w-4" />
               )}
-              Enviar pré-alerta
+              Avisar que estou a caminho
             </Button>
           </div>
         </Card>

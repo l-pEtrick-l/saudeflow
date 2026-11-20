@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Ambulance, Bell, CheckCircle2 } from "lucide-react";
 import { api } from "../../lib/api";
 import type { Alert, Paginated } from "../../lib/types";
-import { ALERT_STATUS, formatDateTime } from "../../lib/format";
+import { SIGNAL_LABEL, YES_NO_LABEL, ALERT_STATUS, formatDateTime } from "../../lib/format";
 import { Badge, Button, Card, EmptyState, Loading, PageHeader, Select, Table } from "../../components/ui";
 
 export default function HospitalAlerts() {
@@ -28,8 +28,8 @@ export default function HospitalAlerts() {
   return (
     <div>
       <PageHeader
-        title="Pré-alertas"
-        subtitle="Pacientes que informaram estar a caminho deste hospital"
+        title="Avisos de chegada"
+        subtitle="Leia os avisos de quem está a caminho. Confirme que leu, registre a chegada e encerre quando terminar."
         actions={
           <Select value={status} onChange={(e) => setStatus(e.target.value)} className="w-52">
             <option value="">Todos</option>
@@ -45,7 +45,7 @@ export default function HospitalAlerts() {
       {isLoading ? (
         <Loading />
       ) : items.length === 0 ? (
-        <EmptyState title="Nenhum pré-alerta" />
+        <EmptyState title="Nenhum aviso de chegada" />
       ) : (
         <Table>
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
@@ -55,7 +55,7 @@ export default function HospitalAlerts() {
               <th className="px-4 py-3">Relato</th>
               <th className="px-4 py-3">Sinais</th>
               <th className="px-4 py-3">Previsão</th>
-              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Situação</th>
               <th className="px-4 py-3 text-right">Ações</th>
             </tr>
           </thead>
@@ -70,8 +70,8 @@ export default function HospitalAlerts() {
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
                     {alert.alert_flags.map((flag) => (
-                      <Badge key={flag} className="bg-amber-50 text-amber-700">
-                        {flag}
+                      <Badge key={SIGNAL_LABEL[flag] ?? flag} className="bg-amber-50 text-amber-700">
+                        {SIGNAL_LABEL[flag] ?? flag}
                       </Badge>
                     ))}
                   </div>
@@ -86,12 +86,12 @@ export default function HospitalAlerts() {
                   <div className="flex flex-wrap justify-end gap-1.5">
                     {["new", "received"].includes(alert.status) && (
                       <Button size="sm" onClick={() => update.mutate({ id: alert.id, value: "confirmed" })}>
-                        <CheckCircle2 className="h-3.5 w-3.5" /> Confirmar
+                        <CheckCircle2 className="h-3.5 w-3.5" /> Confirmar leitura
                       </Button>
                     )}
                     {alert.status === "confirmed" && (
                       <Button variant="success" size="sm" onClick={() => update.mutate({ id: alert.id, value: "arrived" })}>
-                        <Ambulance className="h-3.5 w-3.5" /> Chegada
+                        <Ambulance className="h-3.5 w-3.5" /> Registrar chegada
                       </Button>
                     )}
                     {["confirmed", "arrived"].includes(alert.status) && (
@@ -107,7 +107,7 @@ export default function HospitalAlerts() {
         </Table>
       )}
       <p className="mt-4 flex items-center gap-2 text-xs text-slate-400">
-        <Bell className="h-3.5 w-3.5" /> As informações do pré-alerta não foram verificadas clinicamente.
+        <Bell className="h-3.5 w-3.5" /> O aviso foi preenchido pelo paciente ou acompanhante. A equipe ainda precisa avaliar a pessoa.
       </p>
     </div>
   );

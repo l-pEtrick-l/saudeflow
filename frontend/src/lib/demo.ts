@@ -24,13 +24,13 @@ export const DEMO_ACCOUNTS: Record<
   hospital: {
     email: "hospital@saudeflow.com.br",
     password: "Hosp@123",
-    label: "Visão Hospital",
+    label: "Hospital",
     home: "/hospital",
   },
   admin: {
     email: "admin@saudeflow.com.br",
     password: "Admin@123",
-    label: "Admin",
+    label: "Administrador",
     home: "/admin",
   },
 };

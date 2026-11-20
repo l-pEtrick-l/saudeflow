@@ -10,9 +10,10 @@ import {
   PhoneCall,
   ShieldAlert,
 } from "lucide-react";
+import { PatientNav } from "../../components/PatientNav";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
-import { formatDateTime } from "../../lib/format";
+import { SIGNAL_LABEL, formatDateTime } from "../../lib/format";
 import type { GuidanceResult, Paginated, Unit } from "../../lib/types";
 import { estimateText } from "../../lib/format";
 import { Alert, Badge, Button, Card, Loading } from "../../components/ui";
@@ -97,7 +98,8 @@ export default function ResultPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <p className="mb-4 text-sm font-medium text-brand-700">1. Relato concluído → 2. Unidade e chegada → 3. Acompanhar protocolo</p>
+      <PatientNav />
+      <p className="mb-4 text-sm font-medium text-brand-700">Você já respondeu às perguntas. Agora escolha onde buscar atendimento.</p>
       <div
         className={`rounded-3xl p-6 text-white ${
           guidance.category === "A"
@@ -107,48 +109,48 @@ export default function ResultPage() {
             : "bg-gradient-to-br from-violet-600 to-violet-700"
         }`}
       >
-        <Badge className="bg-white/15 text-white">Categoria {guidance.category}</Badge>
+        <Badge className="bg-white/15 text-white">Orientação pelas suas respostas</Badge>
         <h1 className="mt-3 text-3xl font-extrabold">{guidance.category_label}</h1>
         <p className="mt-2 text-white/90">{guidance.service_label}</p>
       </div>
 
       <Card className="mt-6">
-        <h2 className="font-semibold text-slate-900">O que consideramos</h2>
+        <h2 className="font-semibold text-slate-900">Por que mostramos esta orientação?</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-600">{guidance.justification}</p>
-        <details className="mt-4"><summary className="cursor-pointer text-sm font-medium text-brand-700">Detalhes da orientação demonstrativa</summary>
+        <details className="mt-4"><summary className="cursor-pointer text-sm font-medium text-brand-700">Como esta orientação foi gerada</summary>
+        <p className="mt-3 text-sm text-slate-600">O site usa regras de demonstração para relacionar as respostas ao tipo de unidade. A pontuação abaixo é dessas regras; não é a chance de ter uma doença.</p>
         <div className="mt-4 flex flex-wrap gap-2">
           {guidance.alert_flags.map((flag) => (
-            <Badge key={flag} className="bg-amber-50 text-amber-700">
-              {flag}
+            <Badge key={SIGNAL_LABEL[flag] ?? flag} className="bg-amber-50 text-amber-700">
+              {SIGNAL_LABEL[flag] ?? flag}
             </Badge>
           ))}
         </div>
         <div className="mt-4 grid gap-2 text-xs text-slate-500 sm:grid-cols-3">
           <p>
-            Confiança operacional: <strong>{Math.round(guidance.confidence * 100)}%</strong>
+            Pontuação da regra de demonstração: <strong>{Math.round(guidance.confidence * 100)}%</strong>
           </p>
           <p>
-            Avaliação profissional:{" "}
-            <strong>{guidance.needs_professional ? "necessária" : "não obrigatória"}</strong>
+            Buscar avaliação de um profissional:{" "}
+            <strong>{guidance.needs_professional ? "sim" : "conforme sua necessidade"}</strong>
           </p>
           <p>
-            Versão das regras: <strong>{guidance.rule_set_version}</strong>
+            Versão da orientação: <strong>{guidance.rule_set_version}</strong>
           </p>
         </div>
         {guidance.matched_rule_name && (
-          <p className="mt-2 text-xs text-slate-400">Regra aplicada: {guidance.matched_rule_name}</p>
+          <p className="mt-2 text-xs text-slate-400">Regra aplicada: {guidance.matched_rule_name.replace(/_/g, " ")}</p>
         )}
         </details>
       </Card>
 
       <Alert variant="warning" className="mt-6">
-        Esta orientação é auxiliar e conservadora. A prioridade do atendimento é definida por
-        profissionais de saúde. O protocolo digital não garante horário nem prioridade clínica.
+        Esta é uma orientação inicial, não um diagnóstico. Na unidade, a equipe avalia seu caso e decide quem precisa ser atendido primeiro.
       </Alert>
 
       {unitList.length > 0 && (
         <>
-          <h2 className="mt-8 text-xl font-bold text-slate-900">Unidades compatíveis</h2>
+          <h2 className="mt-8 text-xl font-bold text-slate-900">Onde você pode buscar atendimento</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {unitList.map((unit) => (
               <Card
@@ -190,12 +192,12 @@ export default function ResultPage() {
           {selected && guidance.category === "B" && (
             <Card className="mt-6">
               <h2 className="text-xl font-bold text-slate-900">Planeje sua chegada à UPA</h2>
-              <p className="mt-2 text-sm text-slate-600">Entre na fila online e acompanhe de onde estiver. Escolha uma faixa aproximada para se apresentar na recepção; o atendimento depende da avaliação presencial e da demanda.</p>
-              {arrivalOptions.isLoading && <Loading label="Consultando faixas de chegada..." />}
+              <p className="mt-2 text-sm text-slate-600">Escolha um intervalo de chegada, por exemplo, das 10h às 10h30. Depois, acompanhe a fila pelo seu protocolo antes de sair. O horário pode mudar conforme o movimento.</p>
+              {arrivalOptions.isLoading && <Loading label="Buscando horários de chegada..." />}
               {arrivalOptions.error && <Alert variant="warning" className="mt-3">Não foi possível consultar os horários. <button className="underline" onClick={() => arrivalOptions.refetch()}>Tentar novamente</button></Alert>}
-              <label className="label mt-4" htmlFor="arrival-window">Faixa de chegada (horário local do seu dispositivo)</label>
+              <label className="label mt-4" htmlFor="arrival-window">Quando você pretende chegar? (horário do seu celular ou computador)</label>
               <select id="arrival-window" className="input w-full" value={arrival} onChange={e => setArrival(e.target.value)}>
-                <option value="">Pré-cadastro sem escolher horário</option>
+                <option value="">Enviar meu pedido sem escolher horário</option>
                 {arrivalOptions.data?.windows.map(w => <option key={w.start} value={w.start}>{formatDateTime(w.start)} até {formatDateTime(w.end)}</option>)}
               </select>
               <p className="mt-2 text-sm text-slate-500">{arrivalOptions.data?.message}</p>
@@ -203,7 +205,7 @@ export default function ResultPage() {
             </Card>
           )}
 
-          {guidance.category === "A" ? <Alert className="mt-6" variant="info">Para atenção básica, consulte a UBS escolhida sobre o agendamento. A fila online deste projeto é destinada às UPAs.</Alert> : <div className="sticky bottom-4 mt-6">
+          {guidance.category === "A" ? <Alert className="mt-6" variant="info">Para marcar atendimento em uma UBS, entre em contato com a unidade. Aqui, a escolha de horário na fila online está disponível para UPAs.</Alert> : <div className="sticky bottom-4 mt-6">
             <Button
               size="lg"
               className="w-full shadow-lg"
@@ -215,10 +217,10 @@ export default function ResultPage() {
               ) : (
                 <CheckCircle2 className="h-5 w-5" />
               )}
-              {arrival ? "Entrar na fila online com esta faixa" : "Gerar protocolo na unidade selecionada"}
+              {arrival ? "Entrar na fila com este horário" : "Enviar meu pedido para esta unidade"}
             </Button>
             {error && <p className="mt-2 text-center text-sm text-red-600">{error}</p>}
-            {error && <Link to="/paciente/conta" className="mt-2 block text-center text-sm text-brand-700 underline">Ver minhas solicitações existentes</Link>}
+            {error && <Link to="/paciente/conta" className="mt-2 block text-center text-sm text-brand-700 underline">Ver meus pedidos</Link>}
           </div>}
         </>
       )}

@@ -49,7 +49,7 @@ export default function LoginPage() {
           <HeartPulse className="h-7 w-7" />
         </span>
         <h1 className="mt-4 text-2xl font-bold text-slate-900">Entrar no SaúdeFlow</h1>
-        <p className="mt-1 text-sm text-slate-500">Acesse para acompanhar solicitações e pré-alertas.</p>
+        <p className="mt-1 text-sm text-slate-500">Acesse para acompanhar pedidos e avisos de chegada.</p>
       </div>
 
       <Card>

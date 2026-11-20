@@ -11,6 +11,8 @@ import {
 import { api } from "../../lib/api";
 import type { GuidanceResult, Question } from "../../lib/types";
 import { Alert, Button, Card, Loading, Textarea } from "../../components/ui";
+import { ScaleAnswer } from "../../components/ScaleAnswer";
+import { PatientNav } from "../../components/PatientNav";
 
 type Answers = Record<string, unknown>;
 
@@ -134,7 +136,7 @@ export default function QuestionnairePage() {
             <PhoneCall className="h-7 w-7" /> Ligar SAMU 192
           </a>
           <p className="mt-3 text-center text-sm text-white/85">
-            Não criamos fila virtual para este relato. A regulação médica define o destino.
+            Não espere na fila online. A equipe do SAMU orienta qual ajuda procurar.
           </p>
           <Link to="/" className="mt-6 block text-center text-sm text-white/85 underline">
             Voltar ao início
@@ -148,6 +150,8 @@ export default function QuestionnairePage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
+      <PatientNav />
+      <p className="mb-4 text-sm text-slate-600">Primeiro, conte o que está acontecendo. Depois, você verá onde buscar atendimento. As perguntas mudam conforme suas respostas.</p>
       <div className="mb-6">
         <div className="flex items-center justify-between text-sm text-slate-500">
           <span>
@@ -166,7 +170,7 @@ export default function QuestionnairePage() {
       </Alert>
 
       <Card>
-        <h1 className="text-xl font-bold text-slate-900">{current.text}</h1>
+        <h1 className="text-xl font-bold text-slate-900">{current.external_id === "description" ? "Quer contar um pouco mais? (opcional)" : current.text}</h1>
         {current.help_text && <p className="mt-1 text-sm text-slate-500">{current.help_text}</p>}
 
         <div className="mt-6">
@@ -198,28 +202,7 @@ export default function QuestionnairePage() {
           )}
 
           {current.type === "scale" && (
-            <div>
-              <input
-                type="range"
-                min={Number(current.options[0]?.code ?? 0)}
-                max={Number(current.options[current.options.length - 1]?.code ?? 10)}
-                defaultValue={Number(current.options[0]?.code ?? 0)}
-                id="scale"
-                className="w-full accent-brand-600"
-              />
-              <div className="mt-3 flex items-center gap-3">
-                <Button
-                  onClick={() => {
-                    const el = document.getElementById("scale") as HTMLInputElement;
-                    goNext(Number(el.value));
-                  }}
-                  disabled={advancing}
-                >
-                  Continuar
-                </Button>
-                <span className="text-sm text-slate-500">arraste para escolher</span>
-              </div>
-            </div>
+            <ScaleAnswer key={current.id} question={current} previous={answers[current.external_id]} disabled={advancing || submitting} onContinue={goNext} />
           )}
 
           {current.type === "text" && (

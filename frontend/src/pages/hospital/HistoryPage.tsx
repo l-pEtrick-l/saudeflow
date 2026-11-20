@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
 import type { Alert, Paginated } from "../../lib/types";
-import { ALERT_STATUS, formatDateTime } from "../../lib/format";
+import { SIGNAL_LABEL, YES_NO_LABEL, ALERT_STATUS, formatDateTime } from "../../lib/format";
 import { Badge, Card, EmptyState, Loading, PageHeader, Select, Table } from "../../components/ui";
 
 export default function HospitalHistory() {
@@ -20,8 +20,8 @@ export default function HospitalHistory() {
   return (
     <div>
       <PageHeader
-        title="Histórico de ocorrências"
-        subtitle="Registro administrativo dos pré-alertas recebidos"
+        title="Histórico de avisos"
+        subtitle="Consulte os avisos anteriores e filtre pela situação."
         actions={
           <Select value={status} onChange={(e) => setStatus(e.target.value)} className="w-52">
             <option value="">Todos</option>
@@ -47,7 +47,7 @@ export default function HospitalHistory() {
               <th className="px-4 py-3">Relato</th>
               <th className="px-4 py-3">Consciente</th>
               <th className="px-4 py-3">Respiração</th>
-              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Situação</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -56,8 +56,8 @@ export default function HospitalHistory() {
                 <td className="px-4 py-3 font-semibold text-brand-700">{alert.alert_code}</td>
                 <td className="px-4 py-3 text-slate-500">{formatDateTime(alert.created_at)}</td>
                 <td className="max-w-sm px-4 py-3 text-sm">{alert.description || "—"}</td>
-                <td className="px-4 py-3">{alert.patient_conscious}</td>
-                <td className="px-4 py-3">{alert.patient_breathing}</td>
+                <td className="px-4 py-3">{YES_NO_LABEL[alert.patient_conscious] ?? "Não informado"}</td>
+                <td className="px-4 py-3">{YES_NO_LABEL[alert.patient_breathing] ?? "Não informado"}</td>
                 <td className="px-4 py-3">
                   <Badge className={ALERT_STATUS[alert.status]?.tone}>{alert.status_label}</Badge>
                 </td>

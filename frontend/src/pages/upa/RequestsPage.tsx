@@ -4,7 +4,7 @@ import { CheckCircle2, ClipboardList, Play, Search, StopCircle, UserCheck } from
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
 import type { Paginated, Request } from "../../lib/types";
-import { formatDateTime, REQUEST_STATUS } from "../../lib/format";
+import { CATEGORY_LABEL, QUEUE_STATUS, formatDateTime, REQUEST_STATUS } from "../../lib/format";
 import { Alert, Badge, Button, Card, EmptyState, Input, Loading, Modal, PageHeader, Select, Table, Textarea } from "../../components/ui";
 
 export default function UpaRequests() {
@@ -58,11 +58,11 @@ export default function UpaRequests() {
   return (
     <div>
       <PageHeader
-        title="Solicitações"
-        subtitle="Pré-cadastros digitais recebidos por esta unidade"
+        title="Pedidos de atendimento"
+        subtitle="Veja os pedidos enviados pelo site. Abra “Detalhes” para conferir cada um."
         actions={
           <Select value={status} onChange={(e) => setStatus(e.target.value)} className="w-56">
-            <option value="">Todos os status</option>
+            <option value="">Todas as situações</option>
             {Object.entries(REQUEST_STATUS).map(([value, item]) => (
               <option key={value} value={value}>
                 {item.label}
@@ -71,22 +71,22 @@ export default function UpaRequests() {
           </Select>
         }
       />
-      <Alert variant="info" className="mb-5">Confirme o pré-cadastro, registre a chegada quando o paciente estiver na unidade e então inicie o atendimento. A faixa escolhida ajuda a organizar a recepção e pode variar conforme a demanda.</Alert>
+      <Alert variant="info" className="mb-5">O passo a passo é: confirmar o pedido → registrar a chegada → iniciar → concluir o atendimento. O horário escolhido é aproximado e pode mudar.</Alert>
       {(confirm.error || checkin.error || startCare.error || finishCare.error) && <Alert variant="danger" className="mb-4">{(confirm.error || checkin.error || startCare.error || finishCare.error)?.message}</Alert>}
 
       {isLoading ? (
         <Loading />
       ) : items.length === 0 ? (
-        <EmptyState title="Nenhuma solicitação" description="As solicitações digitais aparecerão aqui." />
+        <EmptyState title="Nenhum pedido" description="Os pedidos enviados para esta unidade aparecerão aqui." />
       ) : (
         <Table>
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
             <tr>
               <th className="px-4 py-3">Protocolo</th>
               <th className="px-4 py-3">Paciente</th>
-              <th className="px-4 py-3">Categoria</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Criada em</th>
+              <th className="px-4 py-3">Orientação</th>
+              <th className="px-4 py-3">Situação</th>
+              <th className="px-4 py-3">Enviado em</th>
               <th className="px-4 py-3 text-right">Ações</th>
             </tr>
           </thead>
@@ -96,7 +96,7 @@ export default function UpaRequests() {
                 <td className="px-4 py-3 font-semibold text-brand-700">{request.protocol}</td>
                 <td className="px-4 py-3">{request.patient_name}</td>
                 <td className="px-4 py-3">
-                  <Badge className="bg-slate-100 text-slate-600">{request.category}</Badge>
+                  <Badge className="bg-slate-100 text-slate-600">{CATEGORY_LABEL[request.category] ?? request.category}</Badge>
                 </td>
                 <td className="px-4 py-3">
                   <Badge className={REQUEST_STATUS[request.status]?.tone}>
@@ -147,11 +147,11 @@ export default function UpaRequests() {
               <strong>Telefone:</strong> {selected.patient_phone || "—"}
             </p>
             <p>
-              <strong>Status:</strong>{" "}
+              <strong>Situação:</strong>{" "}
               <Badge className={REQUEST_STATUS[selected.status]?.tone}>{selected.status_label}</Badge>
             </p>
             <p>
-              <strong>Categoria de orientação:</strong> {selected.category}
+              <strong>Tipo de orientação:</strong> {CATEGORY_LABEL[selected.category] ?? selected.category}
             </p>
             {selected.complaint_summary && (
               <p>
@@ -161,12 +161,12 @@ export default function UpaRequests() {
             {selected.arrival_window_start && <p><strong>Faixa escolhida:</strong> {formatDateTime(selected.arrival_window_start)} – {formatDateTime(selected.arrival_window_end!)}</p>}
             {selected.ticket && (
               <p>
-                <strong>Posição na fila digital:</strong> {selected.ticket.position} (
-                {selected.ticket.status})
+                <strong>Posição na fila online:</strong> {selected.ticket.position} (
+                {QUEUE_STATUS[selected.ticket.status] ?? selected.ticket.status})
               </p>
             )}
             <p className="text-xs text-slate-400">
-              As informações vieram de formulário digital e não foram verificadas clinicamente.
+              As respostas foram enviadas pelo paciente. A equipe ainda precisa avaliar a pessoa na unidade.
             </p>
             {error && <Alert variant="danger">{error}</Alert>}
             { ![
@@ -174,7 +174,7 @@ export default function UpaRequests() {
               "cancelled",
             ].includes(selected.status) && (
               <div className="border-t border-slate-100 pt-3">
-                <label className="label">Cancelar solicitação</label>
+                <label className="label">Cancelar pedido</label>
                 <Textarea
                   rows={2}
                   value={cancelReason}

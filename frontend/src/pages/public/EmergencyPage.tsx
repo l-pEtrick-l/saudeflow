@@ -51,11 +51,10 @@ export default function EmergencyPage() {
             <Ambulance className="h-5 w-5 text-brand-600" /> Já estou a caminho de uma unidade
           </h2>
           <p className="mt-3 text-sm text-slate-600">
-            Você pode enviar um pré-alerta digital com informações preliminares para a unidade. Isso
-            não substitui o SAMU nem garante atendimento.
+            Avise o hospital sobre o que aconteceu e quando pretende chegar. A equipe pode confirmar que leu o aviso. Isso não chama ambulância nem garante atendimento.
           </p>
           <Link to="/paciente/pre-alerta" className="btn-primary mt-4 w-full">
-            Enviar pré-alerta <ArrowRight className="h-4 w-4" />
+            Avisar que estou a caminho <ArrowRight className="h-4 w-4" />
           </Link>
           {!user && (
             <button
@@ -73,8 +72,7 @@ export default function EmergencyPage() {
         <p className="font-semibold">O que o sistema não faz</p>
         <p>
           Não substitui o serviço de emergência, não aciona ambulância, não define destino hospitalar e
-          não oferece fila virtual como alternativa ao socorro. A regulação médica decide sobre ambulância
-          e unidade de destino.
+          não oferece fila virtual como alternativa ao socorro. A equipe do SAMU orienta o socorro e o destino.
         </p>
       </Alert>
 

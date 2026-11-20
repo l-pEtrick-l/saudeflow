@@ -22,11 +22,11 @@ VALID_STATUSES = [
 ]
 
 STATUS_LABELS = {
-    "sent": "Solicitação enviada",
+    "sent": "Pedido enviado",
     "awaiting_confirmation": "Aguardando confirmação",
-    "pre_register_confirmed": "Pré-cadastro confirmado",
+    "pre_register_confirmed": "Cadastro confirmado",
     "patient_arrived": "Paciente chegou",
-    "awaiting_welcome": "Aguardando acolhimento",
+    "awaiting_welcome": "Aguardando avaliação inicial",
     "awaiting_care": "Aguardando atendimento",
     "in_care": "Em atendimento",
     "finished": "Atendimento finalizado",

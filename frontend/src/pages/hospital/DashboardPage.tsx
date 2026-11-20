@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
-import { formatMinutes } from "../../lib/format";
+import { ALERT_STATUS, formatMinutes } from "../../lib/format";
 import { Card, EmptyState, Loading, PageHeader, StatCard } from "../../components/ui";
 
 interface HospitalStats {
@@ -45,28 +45,28 @@ export default function HospitalDashboard() {
     <div>
       <PageHeader
         title={data.unit_name}
-        subtitle="Recebimento de pré-alertas e indicadores operacionais"
+        subtitle="Veja quem avisou que está a caminho. Abra os avisos para ler o relato e confirmar o recebimento."
         actions={
           <Link to="/hospital/alertas" className="btn-primary">
-            <Bell className="h-4 w-4" /> Pré-alertas
+            <Bell className="h-4 w-4" /> Avisos de chegada
           </Link>
         }
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Pré-alertas recebidos" value={data.alerts_total} tone="brand" />
+        <StatCard label="Avisos de chegada recebidos" value={data.alerts_total} tone="brand" />
         <StatCard label="Pacientes a caminho" value={data.patients_on_the_way} tone="amber" />
         <StatCard
           label="Tempo médio de confirmação"
           value={data.average_confirmation_minutes ? formatMinutes(data.average_confirmation_minutes) : "—"}
           tone="mint"
         />
-        <StatCard label="Alertas confirmados" value={data.alerts_by_status.confirmed ?? 0} tone="violet" />
+        <StatCard label="Avisos confirmados" value={data.alerts_by_status.confirmed ?? 0} tone="violet" />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <h2 className="font-semibold text-slate-900">Pré-alertas por dia</h2>
+          <h2 className="font-semibold text-slate-900">Avisos de chegada por dia</h2>
           <div className="mt-4 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.by_day}>
@@ -74,18 +74,18 @@ export default function HospitalDashboard() {
                 <XAxis dataKey="date" tick={{ fontSize: 11 }} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                 <Tooltip />
-                <Bar dataKey="count" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
+                <Bar name="Avisos" dataKey="count" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
         <Card>
-          <h2 className="font-semibold text-slate-900">Distribuição por status</h2>
+          <h2 className="font-semibold text-slate-900">Situação dos avisos</h2>
           <ul className="mt-4 space-y-2 text-sm">
             {Object.entries(data.alerts_by_status).map(([status, count]) => (
               <li key={status} className="flex items-center justify-between">
-                <span className="capitalize text-slate-600">{status}</span>
+                <span className="capitalize text-slate-600">{ALERT_STATUS[status]?.label ?? status}</span>
                 <span className="font-semibold">{count}</span>
               </li>
             ))}
@@ -101,12 +101,12 @@ export default function HospitalDashboard() {
           <Ambulance className="h-6 w-6 text-brand-600" />
           <p className="mt-2 font-semibold text-slate-900">Recebimento em tempo real</p>
           <p className="text-sm text-slate-500">
-            Novos pré-alertas aparecem automaticamente no painel da unidade.
+            Novos avisos de chegada aparecem automaticamente no painel da unidade.
           </p>
         </Card>
         <Card>
           <CheckCircle2 className="h-6 w-6 text-mint-600" />
-          <p className="mt-2 font-semibold text-slate-900">Confirmação administrativa</p>
+          <p className="mt-2 font-semibold text-slate-900">Confirmar que o aviso foi lido</p>
           <p className="text-sm text-slate-500">
             Confirmar recebimento não gera reserva de leito nem garantia de atendimento.
           </p>

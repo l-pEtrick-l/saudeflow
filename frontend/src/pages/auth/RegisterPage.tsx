@@ -44,7 +44,7 @@ export default function RegisterPage() {
       <Card>
         <h1 className="text-2xl font-bold text-slate-900">Criar conta</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Você pode responder ao questionário sem cadastro. A conta serve para acompanhar solicitações.
+          Você pode responder ao questionário sem cadastro. A conta serve para acompanhar pedidos.
         </p>
         <form onSubmit={handleSubmit(onSubmit)} className="mt-5 space-y-4">
           <div>

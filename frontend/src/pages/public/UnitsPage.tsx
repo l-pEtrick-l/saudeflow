@@ -40,7 +40,7 @@ export default function UnitsPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Unidades de saúde</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Unidades cadastradas no ambiente de demonstração. Distância em linha reta, quando disponível.
+            Busque por nome, cidade ou tipo. Compare os serviços e a espera aproximada. As unidades marcadas como “Simulada” são exemplos para testar o site.
           </p>
         </div>
         <Badge className="bg-brand-50 text-brand-700">
@@ -73,7 +73,7 @@ export default function UnitsPage() {
           </div>
           <div className="flex items-end">
             <Link to="/atendimento" className="btn-primary w-full">
-              Quero atendimento
+              Preciso de atendimento
             </Link>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function UnitsPage() {
                     </span>
                     {unit.digital_queue_count != null && unit.digital_queue_count > 0 && (
                       <Badge className="bg-brand-50 text-brand-700">
-                        {unit.digital_queue_count} na fila digital
+                        {unit.digital_queue_count} na fila online
                       </Badge>
                     )}
                   </p>
@@ -144,7 +144,7 @@ export default function UnitsPage() {
                 <div className="mt-4 flex gap-2">
                   {(unit.type === "upa" || unit.type === "hospital" || unit.type === "emergency") && (
                     <Link to={`/atendimento?unit=${unit.id}`} className="btn-primary btn-sm">
-                      Solicitar atendimento
+                      Começar pelas perguntas
                     </Link>
                   )}
                   {unit.source === "cnes" && <Badge className="bg-mint-50 text-mint-700">CNES</Badge>}
@@ -155,7 +155,7 @@ export default function UnitsPage() {
           <div className="lg:sticky lg:top-20 lg:self-start">
             <UnitMap units={units} height={560} />
             <p className="mt-2 text-xs text-slate-500">
-              Mapa com OpenStreetMap/Leaflet. Marcadores de demonstração.
+              Toque nos pontos do mapa para ver as unidades. As localizações desta demonstração são exemplos.
             </p>
           </div>
         </div>

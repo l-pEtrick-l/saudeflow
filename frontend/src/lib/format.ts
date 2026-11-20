@@ -63,15 +63,43 @@ export function phoneMask(value: string) {
 }
 
 export const REQUEST_STATUS: Record<string, { label: string; tone: string }> = {
-  sent: { label: "Enviada", tone: "bg-slate-100 text-slate-700" },
+  sent: { label: "Pedido enviado", tone: "bg-slate-100 text-slate-700" },
   awaiting_confirmation: { label: "Aguardando confirmação", tone: "bg-amber-100 text-amber-700" },
-  pre_register_confirmed: { label: "Pré-cadastro confirmado", tone: "bg-brand-100 text-brand-700" },
+  pre_register_confirmed: { label: "Cadastro confirmado", tone: "bg-brand-100 text-brand-700" },
   patient_arrived: { label: "Paciente chegou", tone: "bg-brand-100 text-brand-700" },
-  awaiting_welcome: { label: "Aguardando acolhimento", tone: "bg-violet-100 text-violet-700" },
+  awaiting_welcome: { label: "Aguardando avaliação inicial", tone: "bg-violet-100 text-violet-700" },
   awaiting_care: { label: "Aguardando atendimento", tone: "bg-violet-100 text-violet-700" },
   in_care: { label: "Em atendimento", tone: "bg-mint-100 text-mint-700" },
   finished: { label: "Finalizado", tone: "bg-mint-100 text-mint-700" },
   cancelled: { label: "Cancelado", tone: "bg-red-100 text-red-700" },
+};
+
+export const ROLE_LABEL: Record<string, string> = {
+  patient: "Paciente", admin: "Administrador", manager: "Gestor da unidade",
+  receptionist: "Recepção", classifier: "Profissional de avaliação", operator: "Operador da unidade",
+  hospital_staff: "Equipe do hospital",
+};
+
+export const YES_NO_LABEL: Record<string, string> = { yes: "Sim", no: "Não", unknown: "Não informado" };
+
+export const QUEUE_STATUS: Record<string, string> = {
+  waiting: "Aguardando", called: "Chamado", attending: "Em avaliação inicial", done: "Concluído", cancelled: "Cancelado", absent: "Ausente",
+};
+
+export const CATEGORY_LABEL: Record<string, string> = {
+  A: "Buscar uma UBS", B: "Possível atendimento em UPA", C: "Pode precisar de hospital", D: "Possível emergência — SAMU 192",
+};
+
+export const UNIT_LABEL: Record<string, string> = {
+  ubs: "UBS", upa: "UPA", hospital: "Hospital", emergency: "Pronto-socorro",
+};
+
+export const SIGNAL_LABEL: Record<string, string> = {
+  fever: "Febre relatada", high_fever: "Febre alta relatada", chest_emergency: "Sinais de alerta no peito",
+  respiratory_emergency: "Dificuldade para respirar", loss_of_consciousness: "Perda de consciência",
+  severe_bleeding: "Sangramento intenso", weapon_injury: "Ferimento por arma", seizure: "Convulsão relatada",
+  stroke: "Sinais de alerta para AVC", possible_emergency: "Possível emergência",
+  possible_hospital_care: "Pode precisar de atendimento hospitalar", patient_on_the_way: "Paciente a caminho",
 };
 
 export const ALERT_STATUS: Record<string, { label: string; tone: string }> = {

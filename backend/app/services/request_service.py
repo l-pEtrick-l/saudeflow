@@ -126,7 +126,7 @@ def create_request(
         db,
         payload.unit_id,
         "Nova solicitação digital",
-        f"{request.patient_name} enviou um pré-cadastro ({request.protocol}).",
+        f"{request.patient_name} enviou um pedido de atendimento ({request.protocol}).",
         type="request",
         request_id=request.id,
     )

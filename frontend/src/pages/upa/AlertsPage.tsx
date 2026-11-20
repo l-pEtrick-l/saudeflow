@@ -4,7 +4,7 @@ import { Bell, CheckCircle2, Clock, MapPin } from "lucide-react";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
 import type { Alert, Paginated } from "../../lib/types";
-import { ALERT_STATUS, formatDateTime } from "../../lib/format";
+import { SIGNAL_LABEL, YES_NO_LABEL, ALERT_STATUS, formatDateTime } from "../../lib/format";
 import { Badge, Button, Card, EmptyState, Loading, PageHeader, Select, Table } from "../../components/ui";
 
 export default function UpaAlerts() {
@@ -30,8 +30,8 @@ export default function UpaAlerts() {
   return (
     <div>
       <PageHeader
-        title="Pré-alertas recebidos"
-        subtitle="Pacientes que informaram estar a caminho desta unidade"
+        title="Avisos de chegada recebidos"
+        subtitle="Leia os avisos de quem está a caminho. Confirme o recebimento e registre quando a pessoa chegar."
         actions={
           <Select value={status} onChange={(e) => setStatus(e.target.value)} className="w-52">
             <option value="">Todos</option>
@@ -47,7 +47,7 @@ export default function UpaAlerts() {
       {isLoading ? (
         <Loading />
       ) : items.length === 0 ? (
-        <EmptyState title="Nenhum pré-alerta" description="Pré-alertas de pacientes a caminho aparecerão aqui." />
+        <EmptyState title="Nenhum aviso de chegada" description="Avisos de chegada de pacientes a caminho aparecerão aqui." />
       ) : (
         <div className="space-y-4">
           {items.map((alert) => (
@@ -74,14 +74,14 @@ export default function UpaAlerts() {
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {alert.alert_flags.map((flag) => (
-                      <Badge key={flag} className="bg-amber-50 text-amber-700">
-                        {flag}
+                      <Badge key={SIGNAL_LABEL[flag] ?? flag} className="bg-amber-50 text-amber-700">
+                        {SIGNAL_LABEL[flag] ?? flag}
                       </Badge>
                     ))}
                   </div>
                   <p className="mt-2 text-xs text-slate-400">
-                    Consciente: {alert.patient_conscious} · Respirando: {alert.patient_breathing} ·
-                    Sangramento: {alert.bleeding}
+                    Consciente: {YES_NO_LABEL[alert.patient_conscious] ?? "Não informado"} · Respirando: {YES_NO_LABEL[alert.patient_breathing] ?? "Não informado"} ·
+                    Sangramento: {YES_NO_LABEL[alert.bleeding] ?? "Não informado"}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -92,7 +92,7 @@ export default function UpaAlerts() {
                   )}
                   {["new", "received"].includes(alert.status) && (
                     <Button size="sm" onClick={() => update.mutate({ id: alert.id, value: "confirmed" })}>
-                      <CheckCircle2 className="h-4 w-4" /> Confirmar
+                      <CheckCircle2 className="h-4 w-4" /> Confirmar leitura
                     </Button>
                   )}
                   {alert.status === "confirmed" && (
@@ -112,7 +112,7 @@ export default function UpaAlerts() {
         </div>
       )}
       <p className="mt-4 text-xs text-slate-400">
-        Confirmar recebimento não significa aceitação clínica, reserva de leito ou garantia de atendimento.
+        Confirmar significa apenas que a equipe recebeu o aviso. Não reserva leito nem garante atendimento.
       </p>
     </div>
   );

@@ -23,6 +23,8 @@ const SOURCE_LABEL: Record<string, string> = {
   osrm: "OSRM — Rotas",
 };
 
+const SYNC_LABEL: Record<string, string> = { success: "Concluída", failed: "Falhou", running: "Em andamento", pending: "Aguardando" };
+
 export default function AdminIntegrations() {
   const queryClient = useQueryClient();
   const [source, setSource] = useState("cnes");
@@ -53,7 +55,7 @@ export default function AdminIntegrations() {
   const sync = useMutation({
     mutationFn: () => api.post<SyncLog>("/api/v1/integrations/sync", { source, uf, limit }),
     onSuccess: (data) => {
-      setNotice(`Sincronização de ${source}: ${data.status}. Buscados ${data.records_fetched}, inseridos ${data.records_inserted}, atualizados ${data.records_updated}.`);
+      setNotice(`Atualização de ${SOURCE_LABEL[source] ?? source}: ${SYNC_LABEL[data.status] ?? data.status}. ${data.records_fetched} registros encontrados, ${data.records_inserted} adicionados e ${data.records_updated} atualizados.`);
       queryClient.invalidateQueries({ queryKey: ["sync-logs"] });
       queryClient.invalidateQueries({ queryKey: ["external-units"] });
     },
@@ -81,14 +83,14 @@ export default function AdminIntegrations() {
   return (
     <div>
       <PageHeader
-        title="Integrações externas"
-        subtitle="Sincronização em cache local — nenhuma consulta externa por usuário"
+        title="Dados de outras fontes"
+        subtitle="Consulte e atualize as informações de outras fontes. A data de atualização mostra quando cada informação foi buscada."
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <h2 className="flex items-center gap-2 font-semibold text-slate-900">
-            <Cloud className="h-5 w-5 text-brand-600" /> Fontes configuradas
+            <Cloud className="h-5 w-5 text-brand-600" /> De onde vêm os dados
           </h2>
           <ul className="mt-4 space-y-3 text-sm">
             {(sources.data ?? []).map((item) => (
@@ -96,7 +98,7 @@ export default function AdminIntegrations() {
                 <div>
                   <p className="font-medium text-slate-800">{SOURCE_LABEL[item.code] ?? item.name}</p>
                   <p className="text-xs text-slate-500">
-                    {item.code} · limite {item.rate_limit_rpm} req/min
+                    Limite de {item.rate_limit_rpm} consultas por minuto
                   </p>
                 </div>
                 <Badge className={item.enabled ? "bg-mint-50 text-mint-700" : "bg-slate-100 text-slate-500"}>
@@ -109,7 +111,7 @@ export default function AdminIntegrations() {
 
         <Card>
           <h2 className="flex items-center gap-2 font-semibold text-slate-900">
-            <RefreshCw className="h-5 w-5 text-brand-600" /> Sincronizar agora
+            <RefreshCw className="h-5 w-5 text-brand-600" /> Buscar atualizações
           </h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <div>
@@ -121,25 +123,25 @@ export default function AdminIntegrations() {
               </Select>
             </div>
             <div>
-              <Label>UF</Label>
+              <Label>Estado (sigla)</Label>
               <Input value={uf} onChange={(e) => setUf(e.target.value.toUpperCase())} maxLength={2} />
             </div>
             <div>
-              <Label>Limite</Label>
+              <Label>Máximo de registros</Label>
               <Input type="number" min={1} max={1000} value={limit} onChange={(e) => setLimit(Number(e.target.value))} />
             </div>
           </div>
           {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
           {notice && <Alert variant="success" className="mt-3">{notice}</Alert>}
           <Button className="mt-4 w-full" onClick={() => sync.mutate()} disabled={sync.isPending}>
-            <Play className="h-4 w-4" /> Executar sincronização
+            <Play className="h-4 w-4" /> Atualizar dados
           </Button>
         </Card>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card>
-          <h3 className="font-semibold text-slate-900">ViaCEP (cache)</h3>
+          <h3 className="font-semibold text-slate-900">Buscar endereço pelo CEP</h3>
           <div className="mt-3 flex gap-2">
             <Input placeholder="01001000" value={cep} onChange={(e) => setCep(e.target.value)} />
             <Button variant="secondary" onClick={lookupCep}>
@@ -155,7 +157,7 @@ export default function AdminIntegrations() {
         </Card>
 
         <Card>
-          <h3 className="font-semibold text-slate-900">IBGE — municípios (cache)</h3>
+          <h3 className="font-semibold text-slate-900">Consultar cidades por estado</h3>
           <div className="mt-3 flex gap-2">
             <Input value={uf} onChange={(e) => setUf(e.target.value.toUpperCase())} maxLength={2} />
             <Button variant="secondary" onClick={lookupIbge}>
@@ -171,16 +173,16 @@ export default function AdminIntegrations() {
       </div>
 
       <Card className="mt-6">
-        <h3 className="font-semibold text-slate-900">Histórico de sincronizações</h3>
+        <h3 className="font-semibold text-slate-900">Histórico das atualizações</h3>
         <div className="mt-4">
           <Table>
             <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-4 py-3">Fonte</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Situação</th>
                 <th className="px-4 py-3">Início</th>
-                <th className="px-4 py-3">Buscados</th>
-                <th className="px-4 py-3">Inseridos</th>
+                <th className="px-4 py-3">Encontrados</th>
+                <th className="px-4 py-3">Adicionados</th>
                 <th className="px-4 py-3">Atualizados</th>
                 <th className="px-4 py-3">Erro</th>
               </tr>
@@ -188,10 +190,10 @@ export default function AdminIntegrations() {
             <tbody className="divide-y divide-slate-100">
               {(logs.data?.data ?? []).map((log) => (
                 <tr key={log.id}>
-                  <td className="px-4 py-3 font-medium">{log.source}</td>
+                  <td className="px-4 py-3 font-medium">{SOURCE_LABEL[log.source] ?? log.source}</td>
                   <td className="px-4 py-3">
                     <Badge className={log.status === "success" ? "bg-mint-50 text-mint-700" : log.status === "failed" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}>
-                      {log.status}
+                      {SYNC_LABEL[log.status] ?? log.status}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-slate-500">{formatDateTime(log.started_at)}</td>
@@ -207,10 +209,9 @@ export default function AdminIntegrations() {
       </Card>
 
       <Card className="mt-6">
-        <h3 className="font-semibold text-slate-900">Cache de unidades externas</h3>
+        <h3 className="font-semibold text-slate-900">Unidades encontradas em outras fontes</h3>
         <p className="mt-1 text-xs text-slate-500">
-          Dados vindos de CNES/DATASUS, armazenados localmente com data de atualização. Não são
-          ocupação em tempo real.
+          São cópias dos cadastros do CNES/DATASUS. A data mostra quando foram buscadas; elas não indicam vagas ou leitos livres agora.
         </p>
         <div className="mt-4">
           <Table>
@@ -228,7 +229,7 @@ export default function AdminIntegrations() {
             <tbody className="divide-y divide-slate-100">
               {(external.data?.data ?? []).map((unit) => (
                 <tr key={unit.id}>
-                  <td className="px-4 py-3">{unit.source}</td>
+                  <td className="px-4 py-3">{SOURCE_LABEL[unit.source] ?? unit.source}</td>
                   <td className="max-w-xs px-4 py-3 font-medium">{unit.name || "—"}</td>
                   <td className="px-4 py-3 text-slate-500">{unit.type_name || "—"}</td>
                   <td className="px-4 py-3 text-slate-500">

@@ -20,7 +20,7 @@ def windows(db, unit_id):
         return {"windows": [], "message": "Esta unidade não oferece planejamento de chegada agora."}
     estimate = estimate_service.get_estimate(db, unit_id, recompute=True)
     if not estimate.is_reliable:
-        return {"windows": [], "message": "Sem histórico suficiente para sugerir uma faixa de chegada. Você pode fazer o pré-cadastro sem horário."}
+        return {"windows": [], "message": "Ainda não há informações suficientes para sugerir um horário. Você pode enviar seu pedido sem escolher horário."}
     now = datetime.now(timezone.utc)
     first = now + timedelta(minutes=max(30, estimate.low_minutes or 0))
     first = datetime.fromtimestamp(math.ceil(first.timestamp() / 1800) * 1800, timezone.utc)
@@ -50,7 +50,7 @@ def tracking(db, request):
               "arrival_window_start": utc(request.arrival_window_start),
               "arrival_window_end": utc(request.arrival_window_end),
               "expected_arrival_start": None, "expected_arrival_end": None,
-              "updated_at": datetime.now(timezone.utc), "message": "A posição é administrativa; a prioridade clínica é definida presencialmente."}
+              "updated_at": datetime.now(timezone.utc), "message": "A posição mostra a ordem dos pedidos online. Na unidade, a equipe avalia quem precisa ser atendido primeiro."}
     if not request.arrival_window_start or not active:
         return result
     if request.status in ("patient_arrived", "awaiting_welcome", "awaiting_care", "in_care"):
@@ -67,5 +67,5 @@ def tracking(db, request):
     start = max(utc(request.arrival_window_start), now + timedelta(minutes=estimate["low_minutes"] or 0))
     end = max(start + timedelta(minutes=30), now + timedelta(minutes=estimate["high_minutes"] or 0))
     result.update(expected_arrival_start=start, expected_arrival_end=end,
-                  message="Faixa estimada atualizada conforme a fila e a capacidade. Confira novamente antes de sair e apresente seu protocolo na recepção.")
+                  message="A previsão foi atualizada conforme a fila e a equipe disponível. Confira novamente antes de sair e apresente seu protocolo na recepção.")
     return result

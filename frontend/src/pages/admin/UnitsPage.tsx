@@ -118,7 +118,7 @@ export default function AdminUnits() {
               <th className="px-4 py-3">Tipo</th>
               <th className="px-4 py-3">Cidade</th>
               <th className="px-4 py-3">Origem</th>
-              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Situação</th>
               <th className="px-4 py-3">Atualizada em</th>
               <th className="px-4 py-3 text-right">Ações</th>
             </tr>

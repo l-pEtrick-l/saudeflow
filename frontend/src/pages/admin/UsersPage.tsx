@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Shield, UserCheck, Users } from "lucide-react";
 import { api } from "../../lib/api";
-import type { Paginated } from "../../lib/types";
-import { formatDateTime } from "../../lib/format";
+import type { Paginated, Unit } from "../../lib/types";
+import { ROLE_LABEL, formatDateTime } from "../../lib/format";
 import { Alert, Badge, Button, Card, Input, Label, Modal, PageHeader, Select, Table } from "../../components/ui";
 
 interface AdminUser {
@@ -31,11 +31,13 @@ export default function AdminUsers() {
   const [unitId, setUnitId] = useState("");
   const [error, setError] = useState("");
 
-  const { data, isLoading } = useQuery<Paginated<AdminUser>>({
+  const { data, isLoading, error: loadError } = useQuery<AdminUser[]>({
     queryKey: ["admin-users", search],
     queryFn: () =>
       api.get(`/api/v1/users?page=1&page_size=50${search ? `&search=${encodeURIComponent(search)}` : ""}`),
   });
+
+  const units = useQuery<Paginated<Unit>>({ queryKey: ["units-for-access"], queryFn: () => api.get("/api/v1/units?page=1&page_size=100") });
 
   const roles = useQuery<Role[]>({
     queryKey: ["roles"],
@@ -44,7 +46,7 @@ export default function AdminUsers() {
 
   const assign = useMutation({
     mutationFn: () =>
-      api.post("/api/v1/users/roles", { user_id: selected?.id, role, unit_id: unitId || undefined }),
+      api.post(`/api/v1/users/${selected?.id}/roles`, { user_id: selected?.id, role, unit_id: unitId || undefined }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       setSelected(null);
@@ -59,13 +61,13 @@ export default function AdminUsers() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-users"] }),
   });
 
-  const items = data?.data ?? [];
+  const items = data ?? [];
 
   return (
     <div>
       <PageHeader
-        title="Usuários e papéis"
-        subtitle="RBAC: admin, gestor, recepção, classificador, operador, hospital e paciente"
+        title="Usuários e acessos"
+        subtitle="Defina o que cada pessoa pode fazer no site e a qual unidade ela pertence."
         actions={
           <Input
             placeholder="Buscar por nome ou e-mail"
@@ -76,7 +78,7 @@ export default function AdminUsers() {
         }
       />
 
-      {isLoading ? (
+      {loadError ? <Alert variant="danger">Não foi possível carregar os usuários. Tente abrir a página novamente.</Alert> : isLoading ? (
         <p className="text-sm text-slate-500">Carregando...</p>
       ) : (
         <Table>
@@ -84,8 +86,8 @@ export default function AdminUsers() {
             <tr>
               <th className="px-4 py-3">Nome</th>
               <th className="px-4 py-3">E-mail</th>
-              <th className="px-4 py-3">Papéis</th>
-              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Acessos</th>
+              <th className="px-4 py-3">Situação</th>
               <th className="px-4 py-3">Criado em</th>
               <th className="px-4 py-3 text-right">Ações</th>
             </tr>
@@ -99,7 +101,7 @@ export default function AdminUsers() {
                   <div className="flex flex-wrap gap-1">
                     {user.roles.map((r) => (
                       <Badge key={r} className="bg-brand-50 text-brand-700">
-                        {r}
+                        {ROLE_LABEL[r] ?? r}
                       </Badge>
                     ))}
                   </div>
@@ -113,7 +115,7 @@ export default function AdminUsers() {
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1.5">
                     <Button variant="secondary" size="sm" onClick={() => setSelected(user)}>
-                      <Shield className="h-3.5 w-3.5" /> Papéis
+                      <Shield className="h-3.5 w-3.5" /> Acessos
                     </Button>
                     <Button
                       variant="ghost"
@@ -131,33 +133,33 @@ export default function AdminUsers() {
         </Table>
       )}
 
-      <Modal open={!!selected} onClose={() => setSelected(null)} title={`Papéis de ${selected?.full_name ?? ""}`}>
+      <Modal open={!!selected} onClose={() => setSelected(null)} title={`Acessos de ${selected?.full_name ?? ""}`}>
         <div className="space-y-4">
           <div className="flex flex-wrap gap-1.5">
             {selected?.roles.map((r) => (
               <Badge key={r} className="bg-brand-50 text-brand-700">
-                {r}
+                {ROLE_LABEL[r] ?? r}
               </Badge>
             ))}
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <Label>Papel</Label>
+              <Label>Tipo de acesso</Label>
               <Select value={role} onChange={(e) => setRole(e.target.value)}>
                 {(roles.data ?? []).map((r) => (
                   <option key={r.id} value={r.name}>
-                    {r.name}
+                    {ROLE_LABEL[r.name] ?? r.name}
                   </option>
                 ))}
               </Select>
             </div>
             <div>
               <Label>Unidade (opcional)</Label>
-              <Input
-                placeholder="ID da unidade"
+              <Select
+                aria-label="Unidade do usuário"
                 value={unitId}
                 onChange={(e) => setUnitId(e.target.value)}
-              />
+              ><option value="">Sem unidade específica</option>{units.data?.data.map(unit => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</Select>
             </div>
           </div>
           {error && <Alert variant="danger">{error}</Alert>}
@@ -166,7 +168,7 @@ export default function AdminUsers() {
             onClick={() => assign.mutate()}
             disabled={assign.isPending}
           >
-            <Users className="h-4 w-4" /> Conceder papel
+            <Users className="h-4 w-4" /> Adicionar acesso
           </Button>
         </div>
       </Modal>

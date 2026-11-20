@@ -6,6 +6,7 @@ import { DEMO_ACCOUNTS, demoLogin, type DemoRole } from "../../lib/demo";
 export function PublicLayout() {
   const [loading, setLoading] = useState<DemoRole | null>(null);
   const [error, setError] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   async function quickLogin(role: DemoRole) {
     setLoading(role);
@@ -56,6 +57,7 @@ export function PublicLayout() {
             <span className="text-lg font-bold text-slate-900">SaúdeFlow</span>
           </NavLink>
           <nav className="hidden items-center gap-1 sm:flex">
+            <NavLink to="/como-usar" className="rounded-lg px-3 py-2 text-sm font-medium text-brand-700 hover:bg-brand-50">Como usar</NavLink>
             <NavLink to="/unidades" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">
               Unidades
             </NavLink>
@@ -63,7 +65,7 @@ export function PublicLayout() {
               onClick={() => quickLogin("hospital")}
               className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-violet-700 hover:bg-violet-50"
             >
-              <Hospital className="h-4 w-4" /> Visão Hospital
+              <Hospital className="h-4 w-4" /> Área do hospital
             </button>
             <NavLink to="/emergencia" className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50">
               Emergência
@@ -72,8 +74,11 @@ export function PublicLayout() {
               Entrar
             </NavLink>
           </nav>
-          <Menu className="h-6 w-6 sm:hidden" />
+          <button type="button" className="rounded-lg p-2 sm:hidden" aria-label="Menu" aria-expanded={menuOpen} aria-controls="public-menu" onClick={() => setMenuOpen(!menuOpen)}><Menu className="h-6 w-6" /></button>
         </div>
+        {menuOpen && <nav id="public-menu" aria-label="Menu principal" className="flex flex-col gap-1 border-t border-slate-100 px-4 pb-3 sm:hidden">
+          {[["/como-usar", "Como usar"], ["/unidades", "Unidades de saúde"], ["/acompanhar", "Acompanhar meu pedido"], ["/paciente/pre-alerta", "Avisar que estou a caminho"], ["/emergencia", "Emergência"], ["/login", "Entrar"]].map(([to, label]) => <NavLink key={to} to={to} onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">{label}</NavLink>)}
+        </nav>}
       </header>
       <main>
         <Outlet />
@@ -81,9 +86,9 @@ export function PublicLayout() {
       <footer className="border-t border-slate-100 bg-slate-50 py-6 text-center text-xs text-slate-500">
         <p className="font-semibold text-slate-600">SaúdeFlow — demonstração acadêmica</p>
         <p className="mx-auto mt-1 max-w-2xl px-4">
-          Não substitui atendimento médico, SAMU 192, regulação ou prontuários oficiais.
-          Dados de demonstração; integrações externas exibidas como cache.
+          Este projeto é uma demonstração. Não envia pedidos para unidades reais nem substitui atendimento médico ou o SAMU 192.
         </p>
+        <NavLink to="/como-usar" className="mt-2 inline-block text-brand-700 underline">Entenda cada função do site</NavLink>
       </footer>
     </div>
   );
