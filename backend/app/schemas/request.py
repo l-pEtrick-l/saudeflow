@@ -7,6 +7,7 @@ from app.schemas.common import ORMModel
 
 
 class RequestCreate(BaseModel):
+    arrival_window_start: Optional[datetime] = None
     submission_id: str
     unit_id: str
     patient_name: str = Field(..., min_length=3, max_length=200)
@@ -16,6 +17,8 @@ class RequestCreate(BaseModel):
 
 
 class RequestOut(ORMModel):
+    arrival_window_start: Optional[datetime] = None
+    arrival_window_end: Optional[datetime] = None
     id: str
     protocol: str
     submission_id: Optional[str] = None

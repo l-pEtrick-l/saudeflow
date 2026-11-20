@@ -7,6 +7,9 @@ from app.schemas.common import ORMModel
 
 
 class QueueTicketOut(ORMModel):
+    arrival_window_start: Optional[datetime] = None
+    arrival_window_end: Optional[datetime] = None
+    request_status: Optional[str] = None
     id: str
     request_id: str
     unit_id: str

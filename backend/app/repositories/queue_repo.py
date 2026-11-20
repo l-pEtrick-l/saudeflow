@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.exceptions import ConflictError
 from app.models.queue import Attendance, CheckIn, QueueEvent, QueueTicket
+from app.models.request import CareRequest
 from app.repositories.base import get_or_404
 
 TICKET_STATUSES = ["waiting", "called", "attending", "done", "cancelled", "absent"]
@@ -14,7 +15,7 @@ TICKET_STATUSES = ["waiting", "called", "attending", "done", "cancelled", "absen
 def create_ticket(db: Session, request_id: str, unit_id: str) -> QueueTicket:
     position = (
         db.scalar(
-            select(func.count(QueueTicket.id)).filter_by(unit_id=unit_id, status="waiting")
+            select(func.max(QueueTicket.position)).filter_by(unit_id=unit_id)
         )
         or 0
     ) + 1
@@ -50,16 +51,18 @@ def list_tickets(
     query = select(QueueTicket).filter_by(unit_id=unit_id)
     if status:
         query = query.filter_by(status=status)
-    return db.scalars(query.order_by(QueueTicket.position, QueueTicket.created_at)).all()
+    return db.scalars(query.join(CareRequest, CareRequest.id == QueueTicket.request_id).order_by(
+        func.coalesce(CareRequest.arrival_window_start, CareRequest.created_at), QueueTicket.created_at, QueueTicket.position
+    )).all()
 
 
 def next_waiting(db: Session, unit_id: str) -> Optional[QueueTicket]:
-    return db.scalar(
-        select(QueueTicket)
-        .filter_by(unit_id=unit_id, status="waiting")
-        .order_by(QueueTicket.position, QueueTicket.created_at)
-        .limit(1)
-    )
+    for ticket in list_tickets(db, unit_id, "waiting"):
+        request = db.get(CareRequest, ticket.request_id)
+        # A remote scheduled patient must check in before being called at the desk.
+        if not request.arrival_window_start or request.status == "patient_arrived":
+            return ticket
+    return None
 
 
 def update_ticket(

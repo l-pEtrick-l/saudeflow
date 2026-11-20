@@ -71,6 +71,8 @@ export default function UpaRequests() {
           </Select>
         }
       />
+      <Alert variant="info" className="mb-5">Confirme o pré-cadastro, registre a chegada quando o paciente estiver na unidade e então inicie o atendimento. A faixa escolhida ajuda a organizar a recepção e pode variar conforme a demanda.</Alert>
+      {(confirm.error || checkin.error || startCare.error || finishCare.error) && <Alert variant="danger" className="mb-4">{(confirm.error || checkin.error || startCare.error || finishCare.error)?.message}</Alert>}
 
       {isLoading ? (
         <Loading />
@@ -101,7 +103,7 @@ export default function UpaRequests() {
                     {request.status_label}
                   </Badge>
                 </td>
-                <td className="px-4 py-3 text-slate-500">{formatDateTime(request.created_at)}</td>
+                <td className="px-4 py-3 text-slate-500">{formatDateTime(request.created_at)}{request.arrival_window_start && <p className="mt-1 text-xs text-brand-700">Chegada: {formatDateTime(request.arrival_window_start)} – {formatDateTime(request.arrival_window_end!)}</p>}</td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap justify-end gap-1.5">
                     <Button variant="ghost" size="sm" onClick={() => setSelected(request)}>
@@ -156,6 +158,7 @@ export default function UpaRequests() {
                 <strong>Resumo:</strong> {selected.complaint_summary}
               </p>
             )}
+            {selected.arrival_window_start && <p><strong>Faixa escolhida:</strong> {formatDateTime(selected.arrival_window_start)} – {formatDateTime(selected.arrival_window_end!)}</p>}
             {selected.ticket && (
               <p>
                 <strong>Posição na fila digital:</strong> {selected.ticket.position} (

@@ -82,6 +82,8 @@ def update_status(
     user=Depends(get_current_user),
 ):
     request = request_service.get_request(db, request_id, user.id, "admin" in get_roles(user, db))
+    if "admin" not in get_roles(user, db) and request.unit_id not in get_unit_ids(user, db):
+        raise ForbiddenError("Somente a equipe da unidade pode atualizar o atendimento")
     return request_service.update_status(
         db, request_id, payload.status, user.id, payload.note
     )

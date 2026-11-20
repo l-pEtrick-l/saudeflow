@@ -8,6 +8,16 @@ import { Alert, Badge, Button, Card, Input, Loading } from "../../components/ui"
 import { REQUEST_STATUS } from "../../lib/format";
 
 interface Tracking {
+  queue: {
+    position: number | null;
+    people_ahead: number | null;
+    arrival_window_start: string | null;
+    arrival_window_end: string | null;
+    expected_arrival_start: string | null;
+    expected_arrival_end: string | null;
+    updated_at: string;
+    message: string;
+  };
   protocol: string;
   status: string;
   status_label: string;
@@ -53,6 +63,7 @@ export default function TrackingPage() {
         }}
       >
         <Input
+          aria-label="Número do protocolo"
           placeholder="SF-2026-000125"
           value={input}
           onChange={(event) => setInput(event.target.value)}
@@ -100,6 +111,20 @@ export default function TrackingPage() {
               <p>Última atualização: {formatDateTime(data.updated_at)}</p>
             </div>
           </Card>
+
+          {data.queue && !["finished", "cancelled"].includes(data.status) && (
+            <Card className="mt-6 border-brand-100 bg-brand-50/40">
+              <h2 className="text-xl font-bold text-brand-800">Sua fila online</h2>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <div><p className="text-sm text-slate-500">Posição administrativa atual</p><p className="text-3xl font-extrabold text-brand-700">{data.queue.position ? `${data.queue.position}º` : "Em andamento"}</p>{data.queue.people_ahead !== null && <p className="text-sm text-slate-600">{data.queue.people_ahead} solicitação(ões) à frente na fila digital</p>}</div>
+                <div><p className="text-sm text-slate-500">Faixa de chegada escolhida</p><p className="font-semibold text-slate-800">{data.queue.arrival_window_start ? `${formatDateTime(data.queue.arrival_window_start)} – ${formatDateTime(data.queue.arrival_window_end!)}` : "Pré-cadastro sem horário"}</p></div>
+              </div>
+              {data.queue.expected_arrival_start && <div className="mt-4 rounded-xl bg-white p-4"><p className="text-sm text-slate-600">Previsão atual de chegada à recepção</p><p className="mt-1 text-lg font-bold text-brand-700">{formatDateTime(data.queue.expected_arrival_start)} – {formatDateTime(data.queue.expected_arrival_end!)}</p><p className="mt-2 text-xs text-slate-500">Horário local do dispositivo · atualizado às {formatDateTime(data.queue.updated_at)}</p></div>}
+              <p className="mt-4 text-sm text-slate-600" role="status">{data.queue.message}</p>
+              <ol className="mt-4 list-inside list-decimal space-y-2 text-sm text-slate-700"><li>Guarde este protocolo e confira a previsão antes de sair.</li><li>Ao chegar, apresente o protocolo para registrar sua presença.</li><li>Aguarde o acolhimento e a classificação de risco presencial.</li></ol>
+              <p className="mt-4 text-sm font-medium text-amber-800">Se houver piora ou emergência, não espere pelo horário da fila. Procure atendimento; em emergência, ligue 192.</p>
+            </Card>
+          )}
 
           <div className="mt-6 rounded-2xl border border-slate-100 bg-white p-5 shadow-soft">
             <p className="mb-3 text-sm font-semibold text-slate-700">Linha do tempo</p>

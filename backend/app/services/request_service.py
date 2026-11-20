@@ -1,4 +1,5 @@
 from typing import List, Optional
+from datetime import timedelta
 
 from sqlalchemy.orm import Session
 
@@ -28,13 +29,15 @@ from app.realtime import (
     event_message,
     publish_event,
 )
-from app.services import estimate_service
+from app.services import estimate_service, arrival_service
 
 
 def _to_out(db: Session, request: CareRequest) -> RequestOut:
     unit = unit_repo.get_unit(db, request.unit_id)
     ticket = queue_repo.get_ticket_for_request(db, request.id)
     return RequestOut(
+        arrival_window_start=arrival_service.utc(request.arrival_window_start),
+        arrival_window_end=arrival_service.utc(request.arrival_window_end),
         id=request.id,
         protocol=request.protocol,
         submission_id=request.submission_id,
@@ -80,6 +83,14 @@ def create_request(
     )
     if not submission:
         raise NotFoundError("Submissão de questionário não encontrada")
+    if submission.user_id and submission.user_id != user_id:
+        raise ForbiddenError("Este questionário pertence a outro paciente")
+    if payload.arrival_window_start and (not user_id or submission.status != "completed"):
+        raise UnprocessableError("Entre na sua conta e conclua o questionário antes de planejar a chegada.")
+    category = submission_category(db, payload.submission_id)
+    if category == "D":
+        raise UnprocessableError("Possível emergência: siga a orientação de socorro imediato, sem aguardar na fila online.")
+    arrival_start = arrival_service.validate_window(db, payload.unit_id, payload.arrival_window_start, category)
 
     # duplicidade: mesmo paciente + mesma unidade + solicitação ativa
     duplicate = db.query(CareRequest).filter(
@@ -105,6 +116,8 @@ def create_request(
             "category": submission_category(db, payload.submission_id),
             "complaint_summary": payload.complaint_summary,
             "status": "sent",
+            "arrival_window_start": arrival_start,
+            "arrival_window_end": arrival_start + timedelta(minutes=30) if arrival_start else None,
         },
     )
     estimate_service.compute_and_cache(db, payload.unit_id)
@@ -186,8 +199,9 @@ def track_request(db: Session, protocol: str) -> dict:
         "unit_name": unit.name if unit else None,
         "unit_city": unit.city if unit else None,
         "category": request.category,
-        "created_at": request.created_at,
-        "updated_at": request.updated_at,
+        "created_at": arrival_service.utc(request.created_at),
+        "updated_at": arrival_service.utc(request.updated_at),
+        "queue": arrival_service.tracking(db, request),
         "estimate": {
             "is_reliable": estimate.is_reliable,
             "low_minutes": estimate.low_minutes,
@@ -275,8 +289,8 @@ def _sync_ticket(db: Session, request: CareRequest, status: str, actor_id, note)
     if not ticket:
         return
     mapping = {
-        "pre_register_confirmed": ("called", "Pré-cadastro confirmado"),
-        "patient_arrived": ("called", "Paciente chegou"),
+        "pre_register_confirmed": ("waiting", "Pré-cadastro confirmado"),
+        "patient_arrived": ("waiting", "Paciente chegou"),
         "awaiting_welcome": ("attending", "Acolhimento iniciado"),
         "awaiting_care": ("attending", "Aguardando atendimento"),
         "in_care": ("attending", "Atendimento iniciado"),

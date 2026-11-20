@@ -57,8 +57,8 @@ const features = [
   },
   {
     icon: <ClipboardList className="h-6 w-6" />,
-    title: "Pré-cadastro e protocolo",
-    text: "Gere um protocolo único e acompanhe o andamento em tempo real, sem recarregar a página.",
+    title: "Fila online e chegada planejada",
+    text: "Na UPA, escolha uma faixa de chegada quando disponível, receba seu protocolo e acompanhe a posição e a previsão atualizada.",
   },
   {
     icon: <ShieldAlert className="h-6 w-6" />,
@@ -90,8 +90,8 @@ export default function HomePage() {
             Orientação inteligente para o atendimento de saúde
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-white/85">
-            O SaúdeFlow conecta a necessidade relatada pelo paciente a questionário inteligente,
-            orientação de acesso, unidade compatível, pré-cadastro e acompanhamento em tempo real.
+            Encontre orientação, escolha uma unidade e entre na fila online. Nas UPAs com previsão disponível,
+            planeje sua chegada e acompanhe pelo celular — para reduzir a espera presencial.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/atendimento" className="btn bg-white text-brand-700 hover:bg-brand-50 px-6 py-3.5 text-base">
@@ -104,6 +104,7 @@ export default function HomePage() {
               <Siren className="h-5 w-5" /> Emergência
             </Link>
           </div>
+          <p className="mt-4 max-w-2xl text-sm text-white/80">A chegada é aproximada e pode mudar. Urgências e a classificação de risco presencial definem a prioridade do atendimento.</p>
           <div className="mt-8 flex flex-wrap gap-4 text-sm text-white/80">
             <Link to="/acompanhar" className="underline decoration-white/40 hover:decoration-white">
               Acompanhar minha solicitação
@@ -118,7 +119,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-14">
         <h2 className="text-2xl font-bold text-slate-900">Como funciona</h2>
         <p className="mt-2 text-slate-600">
-          Um fluxo guiado, com linguagem acessível e botões grandes — pensado para celular.
+          Comece em “Preciso de atendimento”. Responda ao questionário, escolha a unidade e acompanhe seu protocolo.
         </p>
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature) => (
@@ -130,6 +131,19 @@ export default function HomePage() {
               <p className="mt-2 text-sm text-slate-600">{feature.text}</p>
             </Card>
           ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-14">
+        <div className="rounded-3xl border border-brand-100 bg-brand-50 p-6 sm:p-8">
+          <h2 className="text-2xl font-bold text-slate-900">Sua chegada, passo a passo</h2>
+          <ol className="mt-6 grid gap-5 sm:grid-cols-3">
+            <li><p className="font-bold text-brand-700">1. Conte o que precisa</p><p className="mt-2 text-sm text-slate-600">O questionário orienta o tipo de serviço. Em sinais de emergência, siga a orientação imediata.</p></li>
+            <li><p className="font-bold text-brand-700">2. Escolha a UPA e a faixa</p><p className="mt-2 text-sm text-slate-600">Veja as unidades compatíveis e, quando houver previsão, escolha uma faixa de chegada. Seu protocolo identifica a entrada na fila digital.</p></li>
+            <li><p className="font-bold text-brand-700">3. Acompanhe antes de sair</p><p className="mt-2 text-sm text-slate-600">Confira posição e previsão atualizadas. Na unidade, mostre o protocolo à recepção para registrar sua chegada.</p></li>
+          </ol>
+          <details className="mt-6 border-t border-brand-100 pt-4"><summary className="cursor-pointer font-semibold text-brand-800">O horário e a posição são garantidos?</summary><p className="mt-2 text-sm text-slate-600">Não. A faixa organiza a chegada à recepção, e não uma consulta marcada. A demanda, a capacidade e as urgências podem alterar a previsão. A posição é administrativa; a avaliação presencial define a prioridade clínica. Este site é uma demonstração acadêmica, sem reserva real em unidades de saúde.</p></details>
+          <details className="mt-4"><summary className="cursor-pointer font-semibold text-brand-800">E se não aparecer nenhum horário?</summary><p className="mt-2 text-sm text-slate-600">A unidade pode estar sem histórico suficiente ou com o planejamento temporariamente indisponível. Você ainda pode consultar as unidades e, quando permitido, gerar um pré-cadastro sem horário. Para UBS, consulte o agendamento diretamente na unidade.</p></details>
         </div>
       </section>
 

@@ -20,7 +20,7 @@ from app.realtime import (
     publish_event,
 )
 from app.schemas.queue import CallNextOut, QueueBoardOut, QueueTicketOut
-from app.services import estimate_service, request_service, unit_service
+from app.services import estimate_service, request_service, unit_service, arrival_service
 
 
 def _ticket_out(db: Session, ticket: QueueTicket) -> QueueTicketOut:
@@ -34,6 +34,9 @@ def _ticket_out(db: Session, ticket: QueueTicket) -> QueueTicketOut:
         protocol=request.protocol if request else None,
         patient_name=request.patient_name if request else None,
         category=request.category if request else None,
+        arrival_window_start=arrival_service.utc(request.arrival_window_start) if request else None,
+        arrival_window_end=arrival_service.utc(request.arrival_window_end) if request else None,
+        request_status=request.status if request else None,
         complaint_summary=request.complaint_summary if request else None,
         created_at=ticket.created_at,
         updated_at=ticket.updated_at,
@@ -73,7 +76,7 @@ def call_next(db: Session, unit_id: str, actor_id: Optional[str]) -> CallNextOut
         db, ticket, "called", actor_user_id=actor_id, note="Protocolo chamado"
     )
     request = request_repo.get_request(db, ticket.request_id)
-    if request and request.status in ("sent", "awaiting_confirmation", "pre_register_confirmed"):
+    if request and request.status in ("sent", "awaiting_confirmation", "pre_register_confirmed", "patient_arrived"):
         request_service.update_status(
             db,
             request.id,
@@ -103,6 +106,8 @@ def checkin(
         raise NotFoundError("Solicitação não encontrada")
     if request.unit_id != unit_id:
         raise UnprocessableError("Solicitação não pertence a esta unidade")
+    if request.status not in ("sent", "awaiting_confirmation", "pre_register_confirmed"):
+        raise ConflictError("Chegada já registrada ou solicitação encerrada")
     queue_repo.create_checkin(db, request_id, unit_id, method, actor_id)
     return request_service.update_status(
         db, request_id, "patient_arrived", actor_id, "Chegada registrada"

@@ -13,7 +13,7 @@ export const DEMO_ACCOUNTS: Record<
     email: "paciente@saudeflow.com.br",
     password: "Paciente@123",
     label: "Paciente",
-    home: "/",
+    home: "/atendimento",
   },
   upa: {
     email: "recepcao.upa@saudeflow.com.br",

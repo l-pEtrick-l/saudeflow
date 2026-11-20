@@ -76,6 +76,8 @@ export interface GuidanceResult {
 }
 
 export interface Request {
+  arrival_window_start?: string | null;
+  arrival_window_end?: string | null;
   id: string;
   protocol: string;
   patient_name: string;

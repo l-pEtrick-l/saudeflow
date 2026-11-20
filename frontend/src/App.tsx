@@ -1,33 +1,33 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import type { ReactNode } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
 import { AppLayout } from "./components/layout/AppLayout";
 import { PublicLayout } from "./components/layout/PublicLayout";
 import { useAuth } from "./lib/auth";
 import { Loading } from "./components/ui";
 
-import HomePage from "./pages/public/HomePage";
-import UnitsPage from "./pages/public/UnitsPage";
-import EmergencyPage from "./pages/public/EmergencyPage";
-import LoginPage from "./pages/auth/LoginPage";
-import RegisterPage from "./pages/auth/RegisterPage";
-import QuestionnairePage from "./pages/patient/QuestionnairePage";
-import ResultPage from "./pages/patient/ResultPage";
-import TrackingPage from "./pages/patient/TrackingPage";
-import PreAlertPage from "./pages/patient/PreAlertPage";
-import ProfilePage from "./pages/patient/ProfilePage";
-import UpaDashboard from "./pages/upa/DashboardPage";
-import UpaRequests from "./pages/upa/RequestsPage";
-import UpaQueue from "./pages/upa/QueuePage";
-import UpaAlerts from "./pages/upa/AlertsPage";
-import UpaCapacity from "./pages/upa/CapacityPage";
-import HospitalDashboard from "./pages/hospital/DashboardPage";
-import HospitalAlerts from "./pages/hospital/AlertsPage";
-import HospitalHistory from "./pages/hospital/HistoryPage";
-import AdminDashboard from "./pages/admin/DashboardPage";
-import AdminUnits from "./pages/admin/UnitsPage";
-import AdminUsers from "./pages/admin/UsersPage";
-import AdminIntegrations from "./pages/admin/IntegrationsPage";
-import AdminAudit from "./pages/admin/AuditPage";
+const HomePage = lazy(() => import("./pages/public/HomePage"));
+const UnitsPage = lazy(() => import("./pages/public/UnitsPage"));
+const EmergencyPage = lazy(() => import("./pages/public/EmergencyPage"));
+const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/auth/RegisterPage"));
+const QuestionnairePage = lazy(() => import("./pages/patient/QuestionnairePage"));
+const ResultPage = lazy(() => import("./pages/patient/ResultPage"));
+const TrackingPage = lazy(() => import("./pages/patient/TrackingPage"));
+const PreAlertPage = lazy(() => import("./pages/patient/PreAlertPage"));
+const ProfilePage = lazy(() => import("./pages/patient/ProfilePage"));
+const UpaDashboard = lazy(() => import("./pages/upa/DashboardPage"));
+const UpaRequests = lazy(() => import("./pages/upa/RequestsPage"));
+const UpaQueue = lazy(() => import("./pages/upa/QueuePage"));
+const UpaAlerts = lazy(() => import("./pages/upa/AlertsPage"));
+const UpaCapacity = lazy(() => import("./pages/upa/CapacityPage"));
+const HospitalDashboard = lazy(() => import("./pages/hospital/DashboardPage"));
+const HospitalAlerts = lazy(() => import("./pages/hospital/AlertsPage"));
+const HospitalHistory = lazy(() => import("./pages/hospital/HistoryPage"));
+const AdminDashboard = lazy(() => import("./pages/admin/DashboardPage"));
+const AdminUnits = lazy(() => import("./pages/admin/UnitsPage"));
+const AdminUsers = lazy(() => import("./pages/admin/UsersPage"));
+const AdminIntegrations = lazy(() => import("./pages/admin/IntegrationsPage"));
+const AdminAudit = lazy(() => import("./pages/admin/AuditPage"));
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -47,7 +47,7 @@ function RequireRoles({ roles, children }: { roles: string[]; children: ReactNod
 
 export default function App() {
   return (
-    <Routes>
+    <Suspense fallback={<Loading label="Carregando página..." />}><Routes>
       <Route element={<PublicLayout />}>
         <Route index element={<HomePage />} />
         <Route path="unidades" element={<UnitsPage />} />
@@ -141,6 +141,6 @@ export default function App() {
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    </Routes></Suspense>
   );
 }

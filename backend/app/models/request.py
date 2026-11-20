@@ -46,6 +46,8 @@ class CareRequest(Base):
     complaint_summary = Column(Text)
     cancellation_reason = Column(Text)
     risk_classification = Column(String(20))  # registrado por profissional presencial
+    arrival_window_start = Column(DateTime(timezone=True))
+    arrival_window_end = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
     updated_at = Column(
         DateTime(timezone=True),

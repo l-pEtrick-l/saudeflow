@@ -11,6 +11,12 @@ from app.services import queue_service
 router = APIRouter(tags=["Filas e atendimento"])
 
 
+@router.get("/units/{unit_id}/arrival-windows")
+def arrival_windows(unit_id: str, db: Session = Depends(get_db)):
+    from app.services import arrival_service
+    return arrival_service.windows(db, unit_id)
+
+
 class CareStartIn(BaseModel):
     professional_id: str | None = None
 

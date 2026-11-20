@@ -11,6 +11,8 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { api } from "../../lib/api";
+import { useAuth } from "../../lib/auth";
+import { formatDateTime } from "../../lib/format";
 import type { GuidanceResult, Paginated, Unit } from "../../lib/types";
 import { estimateText } from "../../lib/format";
 import { Alert, Badge, Button, Card, Loading } from "../../components/ui";
@@ -20,6 +22,8 @@ export default function ResultPage() {
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const { user } = useAuth();
+  const [arrival, setArrival] = useState("");
 
   const result = useQuery<GuidanceResult>({
     queryKey: ["guidance", submissionId],
@@ -38,19 +42,27 @@ export default function ResultPage() {
     enabled: !!result.data && !result.data.stop_flow,
   });
 
+  const arrivalOptions = useQuery<{ windows: { start: string; end: string }[]; message: string }>({
+    queryKey: ["arrival-windows", selected],
+    queryFn: () => api.get(`/api/v1/units/${selected}/arrival-windows`),
+    enabled: !!selected && result.data?.category === "B",
+    staleTime: 30000,
+  });
+
   const createRequest = useMutation({
     mutationFn: (unitId: string) =>
       api.post<{ protocol: string }>("/api/v1/requests", {
         submission_id: submissionId,
         unit_id: unitId,
-        patient_name: "Paciente SaúdeFlow",
-        patient_phone: "",
+        patient_name: user?.full_name || "Paciente SaúdeFlow",
+        patient_phone: user?.phone || "",
+        arrival_window_start: arrival || null,
       }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["requests"] });
       window.location.href = `/paciente/protocolo/${data.protocol}`;
     },
-    onError: (err: Error) => setError(err.message),
+    onError: (err: Error) => { setError(err.message); setArrival(""); arrivalOptions.refetch(); },
   });
 
   const unitList = useMemo(() => units.data?.data ?? [], [units.data]);
@@ -85,6 +97,7 @@ export default function ResultPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
+      <p className="mb-4 text-sm font-medium text-brand-700">1. Relato concluído → 2. Unidade e chegada → 3. Acompanhar protocolo</p>
       <div
         className={`rounded-3xl p-6 text-white ${
           guidance.category === "A"
@@ -102,6 +115,7 @@ export default function ResultPage() {
       <Card className="mt-6">
         <h2 className="font-semibold text-slate-900">O que consideramos</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-600">{guidance.justification}</p>
+        <details className="mt-4"><summary className="cursor-pointer text-sm font-medium text-brand-700">Detalhes da orientação demonstrativa</summary>
         <div className="mt-4 flex flex-wrap gap-2">
           {guidance.alert_flags.map((flag) => (
             <Badge key={flag} className="bg-amber-50 text-amber-700">
@@ -124,6 +138,7 @@ export default function ResultPage() {
         {guidance.matched_rule_name && (
           <p className="mt-2 text-xs text-slate-400">Regra aplicada: {guidance.matched_rule_name}</p>
         )}
+        </details>
       </Card>
 
       <Alert variant="warning" className="mt-6">
@@ -163,7 +178,7 @@ export default function ResultPage() {
                 <div className="mt-4 flex gap-2">
                   <Button
                     variant={selected === unit.id ? "primary" : "secondary"}
-                    onClick={() => setSelected(unit.id)}
+                    onClick={() => { setSelected(unit.id); setArrival(""); setError(""); }}
                   >
                     {selected === unit.id ? "Selecionada" : "Selecionar"}
                   </Button>
@@ -172,7 +187,23 @@ export default function ResultPage() {
             ))}
           </div>
 
-          <div className="sticky bottom-4 mt-6">
+          {selected && guidance.category === "B" && (
+            <Card className="mt-6">
+              <h2 className="text-xl font-bold text-slate-900">Planeje sua chegada à UPA</h2>
+              <p className="mt-2 text-sm text-slate-600">Entre na fila online e acompanhe de onde estiver. Escolha uma faixa aproximada para se apresentar na recepção; o atendimento depende da avaliação presencial e da demanda.</p>
+              {arrivalOptions.isLoading && <Loading label="Consultando faixas de chegada..." />}
+              {arrivalOptions.error && <Alert variant="warning" className="mt-3">Não foi possível consultar os horários. <button className="underline" onClick={() => arrivalOptions.refetch()}>Tentar novamente</button></Alert>}
+              <label className="label mt-4" htmlFor="arrival-window">Faixa de chegada (horário local do seu dispositivo)</label>
+              <select id="arrival-window" className="input w-full" value={arrival} onChange={e => setArrival(e.target.value)}>
+                <option value="">Pré-cadastro sem escolher horário</option>
+                {arrivalOptions.data?.windows.map(w => <option key={w.start} value={w.start}>{formatDateTime(w.start)} até {formatDateTime(w.end)}</option>)}
+              </select>
+              <p className="mt-2 text-sm text-slate-500">{arrivalOptions.data?.message}</p>
+              {arrival && <p className="mt-3 rounded-xl bg-brand-50 p-3 text-sm text-brand-800">Depois de confirmar, guarde seu protocolo e consulte a previsão antes de sair. A faixa pode mudar; não é garantia de hora marcada.</p>}
+            </Card>
+          )}
+
+          {guidance.category === "A" ? <Alert className="mt-6" variant="info">Para atenção básica, consulte a UBS escolhida sobre o agendamento. A fila online deste projeto é destinada às UPAs.</Alert> : <div className="sticky bottom-4 mt-6">
             <Button
               size="lg"
               className="w-full shadow-lg"
@@ -184,10 +215,11 @@ export default function ResultPage() {
               ) : (
                 <CheckCircle2 className="h-5 w-5" />
               )}
-              Gerar protocolo na unidade selecionada
+              {arrival ? "Entrar na fila online com esta faixa" : "Gerar protocolo na unidade selecionada"}
             </Button>
             {error && <p className="mt-2 text-center text-sm text-red-600">{error}</p>}
-          </div>
+            {error && <Link to="/paciente/conta" className="mt-2 block text-center text-sm text-brand-700 underline">Ver minhas solicitações existentes</Link>}
+          </div>}
         </>
       )}
 

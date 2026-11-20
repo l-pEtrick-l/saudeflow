@@ -2,10 +2,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Activity, Megaphone, Users } from "lucide-react";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
-import { estimateText } from "../../lib/format";
-import { Badge, Button, Card, EmptyState, Loading, PageHeader, StatCard, Table } from "../../components/ui";
+import { estimateText, formatDateTime } from "../../lib/format";
+import { Alert, Badge, Button, Card, EmptyState, Loading, PageHeader, StatCard, Table } from "../../components/ui";
 
 interface Ticket {
+  arrival_window_start?: string | null;
+  arrival_window_end?: string | null;
+  request_status?: string;
   id: string;
   request_id: string;
   position: number;
@@ -55,6 +58,7 @@ export default function UpaQueue() {
   if (!data) return null;
 
   const waiting = data.tickets.filter((t) => t.status === "waiting");
+  const ready = waiting.filter(t => !t.arrival_window_start || t.request_status === "patient_arrived");
 
   return (
     <div>
@@ -62,11 +66,13 @@ export default function UpaQueue() {
         title="Fila digital"
         subtitle={`${data.unit_name} · ordem administrativa, não clínica`}
         actions={
-          <Button onClick={() => callNext.mutate()} disabled={callNext.isPending || waiting.length === 0}>
+          <Button onClick={() => callNext.mutate()} disabled={callNext.isPending || ready.length === 0}>
             <Megaphone className="h-4 w-4" /> Chamar próximo
           </Button>
         }
       />
+      <Alert className="mb-5" variant="info">A fila reúne pré-cadastros e chegadas planejadas. Confirme o recebimento e registre a chegada em Solicitações. Quem escolheu uma faixa só pode ser chamado após chegar. A classificação de risco continua presencial.</Alert>
+      {callNext.error && <Alert variant="danger" className="mb-4">{callNext.error.message}</Alert>}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Aguardando" value={waiting.length} tone="amber" />
@@ -93,19 +99,21 @@ export default function UpaQueue() {
                   <th className="px-4 py-3">Protocolo</th>
                   <th className="px-4 py-3">Paciente</th>
                   <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Chegada planejada</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {data.tickets.map((ticket) => (
                   <tr key={ticket.id}>
-                    <td className="px-4 py-3 font-bold text-brand-700">{ticket.position}</td>
+                    <td className="px-4 py-3 font-bold text-brand-700">{ticket.status === "waiting" ? waiting.findIndex(t => t.id === ticket.id) + 1 : "—"}</td>
                     <td className="px-4 py-3 font-semibold">{ticket.protocol || "—"}</td>
                     <td className="px-4 py-3">{ticket.patient_name || "—"}</td>
                     <td className="px-4 py-3">
                       <Badge className={TICKET_TONE[ticket.status] ?? "bg-slate-100 text-slate-600"}>
-                        {ticket.status}
+                        {({ waiting: "Aguardando", called: "Chamado", attending: "Em acolhimento", done: "Concluído", cancelled: "Cancelado", absent: "Ausente" } as Record<string, string>)[ticket.status] || ticket.status}
                       </Badge>
                     </td>
+                    <td className="px-4 py-3 text-sm">{ticket.arrival_window_start ? <>{formatDateTime(ticket.arrival_window_start)} – {formatDateTime(ticket.arrival_window_end!)}<p className="text-xs text-slate-500">{ticket.request_status === "patient_arrived" ? "Presença registrada" : "A confirmar presencialmente"}</p></> : "Sem horário"}</td>
                   </tr>
                 ))}
               </tbody>

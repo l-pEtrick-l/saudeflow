@@ -14,6 +14,15 @@ Plataforma web full-stack para orientação inteligente de acesso à saúde, fil
 4. **Pré-alerta de emergência** — paciente avisa a unidade que está a caminho; unidade confirma recebimento.
 5. **Portais** — Paciente, UPA, Hospital e Administração, com RBAC.
 6. **Integrações externas** — CNES, DATASUS Hospitais e Leitos, IBGE, ViaCEP e OSRM, com cache local e agendamento.
+7. **Chegada planejada à UPA** — após a orientação B, escolha uma faixa de 30 minutos, receba o protocolo e acompanhe posição administrativa e previsão atualizada. A recepção confirma o pré-cadastro e registra a presença antes da chamada. Horários são estimativas demonstrativas, não consultas ou vagas garantidas.
+
+### Fila online
+
+Em **Preciso de atendimento**, conclua o questionário e selecione uma UPA. Quando há histórico e profissionais disponíveis, o sistema oferece seis faixas aproximadas de chegada. Também permanece disponível o pré-cadastro sem horário. A consulta do protocolo mostra a faixa escolhida, a previsão atual e quantas solicitações aguardam à frente. Após a chegada, o paciente acompanha as etapas presenciais.
+
+O planejamento não é oferecido para emergência, UBS ou orientação hospitalar. Sem dados suficientes, a interface explica a indisponibilidade. A fila é administrativa; a classificação de risco é presencial. A previsão considera histórico, capacidade e fila digital, sem integração com filas reais de UPAs e sem reserva de capacidade por faixa.
+
+As páginas carregam sob demanda: mapas e gráficos não são baixados na entrada do site. Para atualizar o deploy, execute `npm ci` e `npm run build` em `frontend`, inclua **todos** os arquivos de `frontend/dist` no commit (`git add -f frontend/dist`) e publique. A migration `a21b_arrival_windows` acrescenta campos opcionais sem apagar os registros anteriores.
 
 ## Stack
 
